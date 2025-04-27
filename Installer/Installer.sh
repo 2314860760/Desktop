@@ -1,0 +1,68 @@
+#/bin/bash
+
+#设置默认root密码(修改其中的 123qwe= 为你想要修改的密码也可以哦~)
+echo -e "root:123qwe=" | chpasswd
+#设置默认user密码(同上)
+echo -e "user:123qwe=" | chpasswd
+
+
+#设置root远程密码（可以修改这里的密码）
+rm -rf /root/.vnc/passwd
+mkdir -p /root/.vnc && vncpasswd <<EOF
+123qwe=
+123qwe=
+n
+EOF
+#设置user远程密码(同上)
+rm -rf /home/user/.vnc/passwd
+mkdir -p /home/user/.vnc && chown -R user:user /home/user/.vnc && sudo -u user vncpasswd <<EOF
+123qwe=
+123qwe=
+n
+EOF
+
+#启动VNC服务
+vncserver && websockify -D --web=/usr/share/novnc/ 10001 localhost:5901
+sudo -u user vncserver && websockify -D --web=/usr/share/novnc/ 10002 localhost:5902
+
+#重启Dbus
+service dbus restart
+
+#创建IDEA全家桶快捷方式
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=RubyMine\nIcon=/opt/RubyMine-2024.3.5/bin/rubymine.png\nExec=/opt/RubyMine-2024.3.5/bin/rubymine\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Rubymine.desktop
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=PhpStorm\nIcon=/opt/PhpStorm-243.26053.13/bin/phpstorm.png\nExec=/opt/PhpStorm-243.26053.13/bin/phpstorm\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Phpstorm.desktop
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=WebStorm\nIcon=/opt/WebStorm-243.26053.12/bin/webstorm.png\nExec=/opt/WebStorm-243.26053.12/bin/webstorm\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Webstorm.desktop
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=CLion\nIcon=/opt/clion-2024.3.5/bin/clion.png\nExec=/opt/clion-2024.3.5/bin/clion\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Clion.desktop
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=PyCharm\nIcon=/opt/pycharm-2024.3.5/bin/pycharm.png\nExec=/opt/pycharm-2024.3.5/bin/pycharm\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Pycharm.desktop
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=GoLand\nIcon=/opt/GoLand-2024.3.5/bin/goland.png\nExec=/opt/GoLand-2024.3.5/bin/goland\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Goland.desktop
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=IntelliJ IDEA\nIcon=/opt/idea-IU-243.26053.27/bin/idea.png\nExec=/opt/idea-IU-243.26053.27/bin/idea\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/IntelijIdea.desktop
+
+#创建vscode快捷方式
+sed -i 's|Exec=/usr/share/code/code %F|Exec=/usr/share/code/code --no-sandbox %F|' /usr/share/applications/code.desktop
+ln -s /usr/share/applications/code.desktop /root/桌面/code.desktop
+
+#创建QQ快捷方式
+sed -i 's|Exec=/opt/QQ/qq %U|Exec=/opt/QQ/qq --no-sandbox %U|' /usr/share/applications/qq.desktop
+ln -s /usr/share/applications/qq.desktop /root/桌面/QQ.desktop
+#创建微信快捷方式
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=微信\nIcon=wechat\nExec=/opt/wechat/wechat\nTerminal=false\nCategories=Network;\nStartupNotify=true' > /usr/share/applications/wechat.desktop
+ln -s /usr/share/applications/wechat.desktop /root/桌面/wechat.desktop 
+#创建CrossOver快捷方式
+echo -e '#!/usr/bin/env xdg-open\n\n[Desktop Entry]\nEncoding=UTF-8\nType=Application\nX-Created-By=cxoffice-0\nCategories=X-cxmenu-cxoffice-0-29ra4ke;\nStartupNotify=true\nStartupWMClass=crossover\nIcon=cxmenu-cxoffice-0-crossover\nExec=/opt/cxoffice/bin/crossover %u\nName=Win跨平台crossover\nComment=Run Windows software with CrossOver' > /root/桌面/crossover.desktop
+#创建FTP快捷方式
+ln -s /usr/share/applications/filezilla.desktop /root/桌面/filezilla.desktop
+
+#创建非root账号快捷方式
+mkdir -p /home/user/桌面 && chown -R user:user /home/user/桌面
+cp -r /root/桌面/IntelijIDEA /home/user/桌面
+ln -s /usr/share/applications/code.desktop /home/user/桌面/code.desktop
+ln -s /usr/share/applications/qq.desktop /home/user/桌面/QQ.desktop
+ln -s /usr/share/applications/wechat.desktop /home/user/桌面/wechat.desktop
+cp /root/桌面/crossover.desktop /home/user/桌面/crossover.desktop
+ln -s /usr/share/applications/filezilla.desktop /home/user/桌面/filezilla.desktop
+
+chown -R user:user /home/user/桌面/IntelijIDEA
+chown -R user:user /home/user/桌面/*.desktop
+
+chown -R user:user /home/user
+#安装其他
