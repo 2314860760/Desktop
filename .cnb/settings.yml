@@ -1,0 +1,6 @@
+workspace:
+  launch:
+    button:
+      name: 开启云桌面
+      description: 开启云原生桌面
+    autoOpenWebIDE: true

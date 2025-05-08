@@ -42,3 +42,5 @@ RUN wget https://media.codeweavers.com/pub/crossover/cxlinux/demo/crossover_25.0
 
 #其他构建
 RUN cd /opt/ && git clone https://cnb.cool/set/File/idea.git && chmod +x /opt/idea/Installer.sh && bash /opt/idea/Installer.sh
+
+ENV CNB_WELCOME_EXECUTE_COMMAND=chmod +x /workspace/Installer/Start.sh && bash /workspace/Installer/Start.sh

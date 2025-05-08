@@ -21,10 +21,6 @@ mkdir -p /home/user/.vnc && chown -R user:user /home/user/.vnc && sudo -u user v
 n
 EOF
 
-#启动VNC服务
-vncserver && websockify -D --web=/usr/share/novnc/ 10001 localhost:5901
-sudo -u user vncserver && websockify -D --web=/usr/share/novnc/ 10002 localhost:5902
-
 #重启Dbus
 service dbus restart
 
