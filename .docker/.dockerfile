@@ -43,5 +43,7 @@ RUN wget https://media.codeweavers.com/pub/crossover/cxlinux/demo/crossover_25.0
 
 #其他构建
 RUN cd /opt/ && git clone https://cnb.cool/set/File/idea.git && chmod +x /opt/idea/Installer.sh && bash /opt/idea/Installer.sh
+#删除已经安装的安装包
+RUN rm -rf /opt/idea /opt/vscode.deb /opt/dbeaver.deb /opt/QQ_3.2.16_250401_amd64_01.deb /opt/WeChatLinux_x86_64.deb
 
 ENV CNB_WELCOME_EXECUTE_COMMAND="chmod +x /workspace/Installer/Start.sh && bash /workspace/Installer/Start.sh"
