@@ -24,6 +24,13 @@ EOF
 #重启Dbus
 service dbus restart
 
+#设置数据库密码
+service mariadb start
+mysql -u root <<EOF
+SET PASSWORD FOR 'root'@'localhost' = PASSWORD('123qwe=');
+FLUSH PRIVILEGES;
+EOF
+
 #创建IDEA全家桶快捷方式
 echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=RubyMine\nIcon=/opt/RubyMine-2024.3.5/bin/rubymine.png\nExec=/opt/RubyMine-2024.3.5/bin/rubymine\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Rubymine.desktop
 echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=PhpStorm\nIcon=/opt/PhpStorm-243.26053.13/bin/phpstorm.png\nExec=/opt/PhpStorm-243.26053.13/bin/phpstorm\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Phpstorm.desktop
@@ -32,6 +39,7 @@ echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=CLion\nIcon=/opt/c
 echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=PyCharm\nIcon=/opt/pycharm-2024.3.5/bin/pycharm.png\nExec=/opt/pycharm-2024.3.5/bin/pycharm\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Pycharm.desktop
 echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=GoLand\nIcon=/opt/GoLand-2024.3.5/bin/goland.png\nExec=/opt/GoLand-2024.3.5/bin/goland\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Goland.desktop
 echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=IntelliJ IDEA\nIcon=/opt/idea-IU-243.26053.27/bin/idea.png\nExec=/opt/idea-IU-243.26053.27/bin/idea\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/IntelijIdea.desktop
+echo -e "[Desktop Entry]\nVersion=1.0\nType=Application\nName=Datagrip\nIcon=/opt/DataGrip-2025.1.2/bin/datagrip.png\nExec=/opt/DataGrip-2025.1.2/bin/datagrip\nTerminal=false" > /usr/share/applications/datagrip.desktop
 
 #创建vscode快捷方式
 sed -i 's|Exec=/usr/share/code/code %F|Exec=/usr/share/code/code --no-sandbox %F|' /usr/share/applications/code.desktop
@@ -47,6 +55,9 @@ ln -s /usr/share/applications/wechat.desktop /root/桌面/wechat.desktop
 echo -e '#!/usr/bin/env xdg-open\n\n[Desktop Entry]\nEncoding=UTF-8\nType=Application\nX-Created-By=cxoffice-0\nCategories=X-cxmenu-cxoffice-0-29ra4ke;\nStartupNotify=true\nStartupWMClass=crossover\nIcon=cxmenu-cxoffice-0-crossover\nExec=/opt/cxoffice/bin/crossover %u\nName=Win跨平台crossover\nComment=Run Windows software with CrossOver' > /root/桌面/crossover.desktop
 #创建FTP快捷方式
 ln -s /usr/share/applications/filezilla.desktop /root/桌面/filezilla.desktop
+#创建数据库管理器DBeaver快捷方式
+ln -s /usr/share/applications/dbeaver-ce.desktop /root/桌面/dbeaver.desktop
+
 
 #创建非root账号快捷方式
 mkdir -p /home/user/桌面 && chown -R user:user /home/user/桌面
@@ -56,9 +67,15 @@ ln -s /usr/share/applications/qq.desktop /home/user/桌面/QQ.desktop
 ln -s /usr/share/applications/wechat.desktop /home/user/桌面/wechat.desktop
 cp /root/桌面/crossover.desktop /home/user/桌面/crossover.desktop
 ln -s /usr/share/applications/filezilla.desktop /home/user/桌面/filezilla.desktop
+ln -s /usr/share/applications/dbeaver-ce.desktop /home/user/桌面/dbeaver.desktop
 
 chown -R user:user /home/user/桌面/IntelijIDEA
 chown -R user:user /home/user/桌面/*.desktop
 
 chown -R user:user /home/user
+
+
 #安装其他
+
+
+

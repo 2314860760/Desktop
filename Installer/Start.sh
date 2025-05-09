@@ -1,5 +1,9 @@
 #/bin/bash
 
+echo "      你好，世界！正在启动云桌面~"
+echo "      这可能需要1分钟"
+echo ""
+
 #启动VNC服务
 vncserver && websockify -D --web=/usr/share/novnc/ 10001 localhost:5901
 sudo -u user vncserver && websockify -D --web=/usr/share/novnc/ 10002 localhost:5902

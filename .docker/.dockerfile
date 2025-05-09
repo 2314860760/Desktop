@@ -36,6 +36,7 @@ RUN apt install -y -o APT::Install-Recommends=true memcached
 RUN wget https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_x86_64.deb -O /opt/WeChatLinux_x86_64.deb && apt install -y /opt/WeChatLinux_x86_64.deb
 RUN wget https://dldir1.qq.com/qqfile/qq/QQNT/Linux/QQ_3.2.16_250401_amd64_01.deb -O /opt/QQ_3.2.16_250401_amd64_01.deb && apt install -y /opt/QQ_3.2.16_250401_amd64_01.deb
 RUN wget "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64" -O /opt/vscode.deb && apt install -y /opt/vscode.deb
+RUN wget https://dbeaver.io/files/dbeaver-ce_latest_amd64.deb -O /opt/dbeaver.deb && apt install -y /opt/dbeaver.deb
 
 #安装CrossOver
 RUN wget https://media.codeweavers.com/pub/crossover/cxlinux/demo/crossover_25.0.0-1.deb -O /var/crossover_25.0.0-1.deb && apt install -y /var/crossover_25.0.0-1.deb
