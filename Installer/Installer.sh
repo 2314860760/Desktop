@@ -71,9 +71,14 @@ ln -s /usr/share/applications/dbeaver-ce.desktop /home/user/桌面/dbeaver.deskt
 
 chown -R user:user /home/user/桌面/IntelijIDEA
 chown -R user:user /home/user/桌面/*.desktop
-
 chown -R user:user /home/user
 
+#LXQT桌面特定设置
+mkdir -p /home/user/Desktop && chown -R user:user /home/user/Desktop
+cp -r /home/user/桌面/IntelijIDEA /home/user/Desktop
+cp /home/user/桌面/*.desktop /home/user/Desktop/
+chown -R user:user /home/user/Desktop/IntelijIDEA
+chown -R user:user /home/user/Desktop/*.desktop
 
 #安装其他
 
