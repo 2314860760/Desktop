@@ -39,7 +39,7 @@ echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=CLion\nIcon=/opt/c
 echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=PyCharm\nIcon=/opt/pycharm-2024.3.5/bin/pycharm.png\nExec=/opt/pycharm-2024.3.5/bin/pycharm\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Pycharm.desktop
 echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=GoLand\nIcon=/opt/GoLand-2024.3.5/bin/goland.png\nExec=/opt/GoLand-2024.3.5/bin/goland\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Goland.desktop
 echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=IntelliJ IDEA\nIcon=/opt/idea-IU-243.26053.27/bin/idea.png\nExec=/opt/idea-IU-243.26053.27/bin/idea\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/IntelijIdea.desktop
-echo -e "[Desktop Entry]\nVersion=1.0\nType=Application\nName=Datagrip\nIcon=/opt/DataGrip-2025.1.2/bin/datagrip.png\nExec=/opt/DataGrip-2025.1.2/bin/datagrip\nTerminal=false" > /usr/share/applications/datagrip.desktop
+echo -e "[Desktop Entry]\nVersion=1.0\nType=Application\nName=Datagrip\nIcon=/opt/DataGrip-2025.1.2/bin/datagrip.png\nExec=/opt/DataGrip-2025.1.2/bin/datagrip\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true" > /usr/share/applications/datagrip.desktop
 
 #创建vscode快捷方式
 sed -i 's|Exec=/usr/share/code/code %F|Exec=/usr/share/code/code --no-sandbox %F|' /usr/share/applications/code.desktop
