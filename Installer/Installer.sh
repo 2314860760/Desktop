@@ -57,7 +57,8 @@ echo -e '#!/usr/bin/env xdg-open\n\n[Desktop Entry]\nEncoding=UTF-8\nType=Applic
 ln -s /usr/share/applications/filezilla.desktop /root/桌面/filezilla.desktop
 #创建数据库管理器DBeaver快捷方式
 ln -s /usr/share/applications/dbeaver-ce.desktop /root/桌面/dbeaver.desktop
-
+#修复Home变量
+sed -i 's|export HOME=$(echo -e "/root")||' /etc/profile
 
 #创建非root账号快捷方式
 mkdir -p /home/user/桌面 && chown -R user:user /home/user/桌面
