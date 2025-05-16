@@ -32,14 +32,26 @@ FLUSH PRIVILEGES;
 EOF
 
 #创建IDEA全家桶快捷方式
-echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=RubyMine\nIcon=/opt/RubyMine-2024.3.5/bin/rubymine.png\nExec=/opt/RubyMine-2024.3.5/bin/rubymine\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Rubymine.desktop
-echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=PhpStorm\nIcon=/opt/PhpStorm-243.26053.13/bin/phpstorm.png\nExec=/opt/PhpStorm-243.26053.13/bin/phpstorm\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Phpstorm.desktop
-echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=WebStorm\nIcon=/opt/WebStorm-243.26053.12/bin/webstorm.png\nExec=/opt/WebStorm-243.26053.12/bin/webstorm\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Webstorm.desktop
-echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=CLion\nIcon=/opt/clion-2024.3.5/bin/clion.png\nExec=/opt/clion-2024.3.5/bin/clion\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Clion.desktop
-echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=PyCharm\nIcon=/opt/pycharm-2024.3.5/bin/pycharm.png\nExec=/opt/pycharm-2024.3.5/bin/pycharm\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Pycharm.desktop
-echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=GoLand\nIcon=/opt/GoLand-2024.3.5/bin/goland.png\nExec=/opt/GoLand-2024.3.5/bin/goland\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Goland.desktop
-echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=IntelliJ IDEA\nIcon=/opt/idea-IU-243.26053.27/bin/idea.png\nExec=/opt/idea-IU-243.26053.27/bin/idea\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/IntelijIdea.desktop
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=CLion\nIcon=/opt/clion-2025.1.1/bin/clion.png\nExec=/opt/clion-2025.1.1/bin/clion\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Clion.desktop
 echo -e "[Desktop Entry]\nVersion=1.0\nType=Application\nName=Datagrip\nIcon=/opt/DataGrip-2025.1.2/bin/datagrip.png\nExec=/opt/DataGrip-2025.1.2/bin/datagrip\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true" > /usr/share/applications/datagrip.desktop
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=GoLand\nIcon=/opt/GoLand-2025.1.1/bin/goland.png\nExec=/opt/GoLand-2025.1.1/bin/goland\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Goland.desktop
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=IntelliJ IDEA\nIcon=/opt/idea-IU-251.25410.129/bin/idea.png\nExec=/opt/idea-IU-251.25410.129/bin/idea\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/IntelijIdea.desktop
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=PhpStorm\nIcon=/opt/PhpStorm-251.25410.148/bin/phpstorm.png\nExec=/opt/PhpStorm-251.25410.148/bin/phpstorm\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Phpstorm.desktop
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=PyCharm\nIcon=/opt/pycharm-2025.1.1.1/bin/pycharm.png\nExec=/opt/pycharm-2025.1.1.1/bin/pycharm\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Pycharm.desktop
+echo -e "[Desktop Entry]\nVersion=1.0\nType=Application\nName=Rider\nIcon=/opt/Rider-2025.1.2/bin/rider.png\nExec=/opt/Rider-2025.1.2/bin/rider\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true" > /usr/share/applications/rider.desktop
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=RubyMine\nIcon=/opt/RubyMine-2025.1.1/bin/rubymine.png\nExec=/opt/RubyMine-2025.1.1/bin/rubymine\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Rubymine.desktop
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=WebStorm\nIcon=/opt/WebStorm-251.25410.117/bin/webstorm.png\nExec=/opt/WebStorm-251.25410.117/bin/webstorm\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Webstorm.desktop
+#创建Root用户快捷方式
+mkdir -p /root/桌面/IntelijIDEA/
+ln -s /usr/share/applications/Rubymine.desktop /root/桌面/IntelijIDEA/rubymine.desktop
+ln -s /usr/share/applications/Phpstorm.desktop /root/桌面/IntelijIDEA/phpstorm.desktop
+ln -s /usr/share/applications/Webstorm.desktop /root/桌面/IntelijIDEA/webstorm.desktop
+ln -s /usr/share/applications/Clion.desktop /root/桌面/IntelijIDEA/clion.desktop
+ln -s /usr/share/applications/Pycharm.desktop /root/桌面/IntelijIDEA/pycharm.desktop
+ln -s /usr/share/applications/Goland.desktop /root/桌面/IntelijIDEA/goland.desktop
+ln -s /usr/share/applications/IntelijIdea.desktop /root/桌面/IntelijIDEA/idea.desktop
+ln -s /usr/share/applications/datagrip.desktop /root/桌面/IntelijIDEA/datagrip.desktop
+ln -s /usr/share/applications/rider.desktop /root/桌面/IntelijIDEA/rider.desktop
 
 #创建vscode快捷方式
 sed -i 's|Exec=/usr/share/code/code %F|Exec=/usr/share/code/code --no-sandbox %F|' /usr/share/applications/code.desktop
