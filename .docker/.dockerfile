@@ -11,7 +11,7 @@ RUN apt install -y -o APT::Install-Recommends=true php
 RUN apt install -y -o APT::Install-Recommends=true openjdk-17-jdk
 RUN wget https://download.java.net/java/GA/jdk24.0.1/24a58e0e276943138bf3e963e6291ac2/9/GPL/openjdk-24.0.1_linux-x64_bin.tar.gz -O /opt/openjdk24.0.1.tar.gz && tar -zxvf /opt/openjdk24.0.1.tar.gz
 #RUN 安装其他JDK?
-##
+
 
 #安装.net core
 RUN wget https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && dpkg -i packages-microsoft-prod.deb && rm packages-microsoft-prod.deb
@@ -45,3 +45,6 @@ RUN wget https://media.codeweavers.com/pub/crossover/cxlinux/demo/crossover_25.0
 RUN cd /opt/ && git clone https://cnb.cool/set/File/idea.git && chmod +x /opt/idea/Installer.sh && bash /opt/idea/Installer.sh && rm -rf /opt/idea 
 
 ENV CNB_WELCOME_EXECUTE_COMMAND="chmod +x /workspace/Installer/Start.sh && bash /workspace/Installer/Start.sh"
+
+# 触发更新标记
+# 20250516
