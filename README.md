@@ -41,6 +41,10 @@ KDE, XFace, LXDE, LXQT, MATE, CINNAMON等  具体可以看分支选择!
 ![步骤4](/Img/changeView.jpg)  
 
 
+## 怎么生成的?
+基于云原生开发提供的docker环境,辅以.docker/build.dockerfile文件生成docker镜像,然后使用.dockerfile作为加速缓存的方式加载
+如果你需要自定义环境,可以修改.docker/build.dockerfile文件中的内容,并生成对应的镜像后替换到.dockerfile中
+
 ## 其他信息
 如果您觉得这个仓库对您有帮助，欢迎您点个Star！
 
