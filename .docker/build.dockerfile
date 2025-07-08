@@ -1,6 +1,7 @@
 # .ide/Dockerfile
 FROM docker.cnb.cool/set/file/dockerimages/desktop:basement
-
+RUN apt-mark hold tzdata
+RUN apt update && apt upgrade -y || true
 #安装npm
 RUN apt install -y -o APT::Install-Recommends=true npm
 
@@ -47,4 +48,4 @@ RUN cd /opt/ && git clone https://cnb.cool/set/File/idea.git && chmod +x /opt/id
 ENV CNB_WELCOME_EXECUTE_COMMAND="chmod +x /workspace/Installer/Start.sh && bash /workspace/Installer/Start.sh"
 
 # 触发更新标记
-# 20250516
+# 20250708
