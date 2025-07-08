@@ -41,6 +41,8 @@ echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=PyCharm\nIcon=/opt
 echo -e "[Desktop Entry]\nVersion=1.0\nType=Application\nName=Rider\nIcon=/opt/Rider-2025.1.2/bin/rider.png\nExec=/opt/Rider-2025.1.2/bin/rider\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true" > /usr/share/applications/rider.desktop
 echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=RubyMine\nIcon=/opt/RubyMine-2025.1.1/bin/rubymine.png\nExec=/opt/RubyMine-2025.1.1/bin/rubymine\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Rubymine.desktop
 echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=WebStorm\nIcon=/opt/WebStorm-251.25410.117/bin/webstorm.png\nExec=/opt/WebStorm-251.25410.117/bin/webstorm\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Webstorm.desktop
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=Dataspell\nIcon=/opt/dataspell-2025.1.2/bin/dataspell.png\nExec=/opt/dataspell-2025.1.2/bin/dataspell\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Dataspell.desktop
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=RustRover\nIcon=/opt/RustRover-2025.1.5/bin/rustrover.png\nExec=/opt/RustRover-2025.1.5/bin/rustrover\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/RustRover.desktop
 #创建Root用户快捷方式
 mkdir -p /root/桌面/IntelijIDEA/
 ln -s /usr/share/applications/Rubymine.desktop /root/桌面/IntelijIDEA/rubymine.desktop
@@ -52,6 +54,8 @@ ln -s /usr/share/applications/Goland.desktop /root/桌面/IntelijIDEA/goland.des
 ln -s /usr/share/applications/IntelijIdea.desktop /root/桌面/IntelijIDEA/idea.desktop
 ln -s /usr/share/applications/datagrip.desktop /root/桌面/IntelijIDEA/datagrip.desktop
 ln -s /usr/share/applications/rider.desktop /root/桌面/IntelijIDEA/rider.desktop
+ln -s /usr/share/applications/Dataspell.desktop /root/桌面/IntelijIDEA/dataspell.desktop
+ln -s /usr/share/applications/RustRover.desktop /root/桌面/IntelijIDEA/rustrover.desktop
 
 #创建vscode快捷方式
 sed -i 's|Exec=/usr/share/code/code %F|Exec=/usr/share/code/code --no-sandbox %F|' /usr/share/applications/code.desktop

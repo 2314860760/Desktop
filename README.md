@@ -1,15 +1,18 @@
 ![HelloWorld](./Img/hi.jpg)
 
-# <span style="color:#00BCD4">你好，世界！</span>我是 -><span style="color:#0099ff"> 云原生桌面 </span>
+# <span style="color:#00BCD4">你好，世界！</span>我是 -><span style="color:#0099ff"> [云原生桌面](https://cnb.cool/set/Playground/Desktop) </span>
+![badge](https://cnb.cool/set/Playground/Desktop/-/badge/git/latest/code/vscode-started) ![badge](https://cnb.cool/set/Playground/Desktop/-/badge/git/latest/ci/git-clone-yyds)
 
-## 一种全新的开发体验
+## 一种全新的云原生开发体验
+一块屏幕,加上鼠标键盘和稳定的网络，你就可以开始直接进入主线。   
+安装环境？默认预装了多种环境！！！  
+满足从PHP，Java,Python,Go,Nodejs,Rust,C#,C++,C等主流语言的IDE，以及各种常用软件！  
+数据分析?Datagrip也装了!还内置了数据库和数据库管理工具DBEaver  
+传输文件?FTP也装了！  
+聊天需求?微信QQ都满足你!  
 
-## 云原生的Linux桌面(全中文环境！)
-
-预安装多种桌面、常用的IDE、流行的通讯软件 和 中文输入法等软件！  
 预装跨平台组件，可以运行<b>Windows</b>程序。   
-
-预装程序可以查看[[其他信息]](./其他信息.md)中0x03部分。   
+其他预装程序可以查看[[其他信息]](./其他信息.md)中0x03部分。   
  
 在出现编辑器界面后，请稍微等待大概10-30秒，会自动打开控制台窗口，如果没有自动打开，请参见下方的疑难解决  
 
