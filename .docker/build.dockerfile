@@ -1,48 +1,107 @@
 # .ide/Dockerfile
 FROM docker.cnb.cool/set/file/dockerimages/desktop:basement
 RUN apt-mark hold tzdata
-RUN apt update && apt upgrade -y || true
+RUN apt update && apt upgrade -y && rm -rf /var/lib/apt/lists/*
 
 #安装组件
-RUN wget https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/cuda-keyring_1.1-1_all.deb -O /tmp/cuda-keyring_1.1-1_all.deb && apt install /tmp/cuda-keyring_1.1-1_all.deb
-ENV NV_CUDA_LIB_VERSION="12.9.1-1"
-ENV NV_CUDA_CUDART_DEV_VERSION=12.9.79-1
-ENV NV_NVML_DEV_VERSION=12.9.79-1
-ENV NV_LIBCUSPARSE_DEV_VERSION=12.5.10.65-1
-ENV NV_LIBNPP_DEV_VERSION=12.4.1.87-1
-ENV NV_LIBNPP_DEV_PACKAGE=libnpp-dev-12-9=${NV_LIBNPP_DEV_VERSION}
+ENV NVARCH x86_64
 
-ENV NV_LIBCUBLAS_DEV_VERSION=12.9.1.4-1
-ENV NV_LIBCUBLAS_DEV_PACKAGE_NAME=libcublas-dev-12-9
-ENV NV_LIBCUBLAS_DEV_PACKAGE=${NV_LIBCUBLAS_DEV_PACKAGE_NAME}=${NV_LIBCUBLAS_DEV_VERSION}
+ENV NVIDIA_REQUIRE_CUDA "cuda>=12.2 brand=tesla,driver>=470,driver<471 brand=unknown,driver>=470,driver<471 brand=nvidia,driver>=470,driver<471 brand=nvidiartx,driver>=470,driver<471 brand=geforce,driver>=470,driver<471 brand=geforcertx,driver>=470,driver<471 brand=quadro,driver>=470,driver<471 brand=quadrortx,driver>=470,driver<471 brand=titan,driver>=470,driver<471 brand=titanrtx,driver>=470,driver<471 brand=tesla,driver>=525,driver<526 brand=unknown,driver>=525,driver<526 brand=nvidia,driver>=525,driver<526 brand=nvidiartx,driver>=525,driver<526 brand=geforce,driver>=525,driver<526 brand=geforcertx,driver>=525,driver<526 brand=quadro,driver>=525,driver<526 brand=quadrortx,driver>=525,driver<526 brand=titan,driver>=525,driver<526 brand=titanrtx,driver>=525,driver<526"
+ENV NV_CUDA_CUDART_VERSION 12.2.140-1
+ENV NV_CUDA_COMPAT_PACKAGE cuda-compat-12-2
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gnupg2 curl ca-certificates && \
+    curl -fsSLO https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/cuda-keyring_1.1-1_all.deb && \
+    dpkg -i cuda-keyring_1.1-1_all.deb && \
+    rm -rf /var/lib/apt/lists/* && \
+    echo 'deb [signed-by=/usr/share/keyrings/cuda-archive-keyring.gpg] https://developer.download.nvidia.com/compute/cuda/repos/debian11/x86_64/ /' > /etc/apt/sources.list.d/cuda-debian12-x86_64.list
+ENV CUDA_VERSION 12.2.2
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    cuda-cudart-12-2=${NV_CUDA_CUDART_VERSION} \
+    ${NV_CUDA_COMPAT_PACKAGE} \
+    && rm -rf /var/lib/apt/lists/*
+RUN echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf \
+    && echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
+ENV PATH /usr/local/nvidia/bin:/usr/local/cuda/bin:${PATH}
+ENV LD_LIBRARY_PATH /usr/local/nvidia/lib:/usr/local/nvidia/lib64
+ENV NVIDIA_VISIBLE_DEVICES all
+ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
+#runningtime
+ENV NV_CUDA_LIB_VERSION 12.2.2-1
 
-ENV NV_CUDA_NSIGHT_COMPUTE_VERSION=12.9.1-1
-ENV NV_CUDA_NSIGHT_COMPUTE_DEV_PACKAGE=cuda-nsight-compute-12-9=${NV_CUDA_NSIGHT_COMPUTE_VERSION}
+ENV NV_NVTX_VERSION 12.2.140-1
+ENV NV_LIBNPP_VERSION 12.2.1.4-1
+ENV NV_LIBNPP_PACKAGE libnpp-12-2=${NV_LIBNPP_VERSION}
+ENV NV_LIBCUSPARSE_VERSION 12.1.2.141-1
 
-ENV NV_NVPROF_VERSION=12.9.79-1
-ENV NV_NVPROF_DEV_PACKAGE=cuda-nvprof-12-9=${NV_NVPROF_VERSION}
+ENV NV_LIBCUBLAS_PACKAGE_NAME libcublas-12-2
+ENV NV_LIBCUBLAS_VERSION 12.2.5.6-1
+ENV NV_LIBCUBLAS_PACKAGE ${NV_LIBCUBLAS_PACKAGE_NAME}=${NV_LIBCUBLAS_VERSION}
 
-ENV NV_LIBNCCL_DEV_PACKAGE_NAME=libnccl-dev
-ENV NV_LIBNCCL_DEV_PACKAGE_VERSION=2.27.3-1
-ENV NCCL_VERSION=2.27.3-1
-ENV NV_LIBNCCL_DEV_PACKAGE=${NV_LIBNCCL_DEV_PACKAGE_NAME}=${NV_LIBNCCL_DEV_PACKAGE_VERSION}+cuda12.9
+ENV NV_LIBNCCL_PACKAGE_NAME libnccl2
+ENV NV_LIBNCCL_PACKAGE_VERSION 2.19.3-1
+ENV NCCL_VERSION 2.19.3-1
+ENV NV_LIBNCCL_PACKAGE ${NV_LIBNCCL_PACKAGE_NAME}=${NV_LIBNCCL_PACKAGE_VERSION}+cuda12.2
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    cuda-cudart-dev-12-9=${NV_CUDA_CUDART_DEV_VERSION} \
-    cuda-command-line-tools-12-9=${NV_CUDA_LIB_VERSION} \
-    cuda-minimal-build-12-9=${NV_CUDA_LIB_VERSION} \
-    cuda-libraries-dev-12-9=${NV_CUDA_LIB_VERSION} \
-    cuda-nvml-dev-12-9=${NV_NVML_DEV_VERSION} \
+    cuda-libraries-12-2=${NV_CUDA_LIB_VERSION} \
+    ${NV_LIBNPP_PACKAGE} \
+    cuda-nvtx-12-2=${NV_NVTX_VERSION} \
+    libcusparse-12-2=${NV_LIBCUSPARSE_VERSION} \
+    ${NV_LIBCUBLAS_PACKAGE} \
+    && rm -rf /var/lib/apt/lists/*
+#    ${NV_LIBNCCL_PACKAGE} \
+
+RUN apt-mark hold ${NV_LIBCUBLAS_PACKAGE_NAME} 
+#${NV_LIBNCCL_PACKAGE_NAME}
+# COPY entrypoint.d/ /opt/nvidia/entrypoint.d/
+# COPY nvidia_entrypoint.sh /opt/nvidia/
+# ENV NVIDIA_PRODUCT_NAME="CUDA"
+# ENTRYPOINT ["/opt/nvidia/nvidia_entrypoint.sh"]
+
+#devel
+ENV NV_CUDA_LIB_VERSION="12.2.2-1"
+
+ENV NV_CUDA_CUDART_DEV_VERSION 12.2.140-1
+ENV NV_NVML_DEV_VERSION 12.2.140-1
+ENV NV_LIBCUSPARSE_DEV_VERSION 12.1.2.141-1
+ENV NV_LIBNPP_DEV_VERSION 12.2.1.4-1
+ENV NV_LIBNPP_DEV_PACKAGE libnpp-dev-12-2=${NV_LIBNPP_DEV_VERSION}
+
+ENV NV_LIBCUBLAS_DEV_VERSION 12.2.5.6-1
+ENV NV_LIBCUBLAS_DEV_PACKAGE_NAME libcublas-dev-12-2
+ENV NV_LIBCUBLAS_DEV_PACKAGE ${NV_LIBCUBLAS_DEV_PACKAGE_NAME}=${NV_LIBCUBLAS_DEV_VERSION}
+
+ENV NV_CUDA_NSIGHT_COMPUTE_VERSION 12.2.2-1
+ENV NV_CUDA_NSIGHT_COMPUTE_DEV_PACKAGE cuda-nsight-compute-12-2=${NV_CUDA_NSIGHT_COMPUTE_VERSION}
+
+ENV NV_NVPROF_VERSION 12.2.142-1
+ENV NV_NVPROF_DEV_PACKAGE cuda-nvprof-12-2=${NV_NVPROF_VERSION}
+
+ENV NV_LIBNCCL_DEV_PACKAGE_NAME libnccl-dev
+ENV NV_LIBNCCL_DEV_PACKAGE_VERSION 2.19.3-1
+ENV NCCL_VERSION 2.19.3-1
+ENV NV_LIBNCCL_DEV_PACKAGE ${NV_LIBNCCL_DEV_PACKAGE_NAME}=${NV_LIBNCCL_DEV_PACKAGE_VERSION}+cuda12.2
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    cuda-cudart-dev-12-2=${NV_CUDA_CUDART_DEV_VERSION} \
+    cuda-command-line-tools-12-2=${NV_CUDA_LIB_VERSION} \
+    cuda-minimal-build-12-2=${NV_CUDA_LIB_VERSION} \
+    cuda-libraries-dev-12-2=${NV_CUDA_LIB_VERSION} \
+    cuda-nvml-dev-12-2=${NV_NVML_DEV_VERSION} \
     ${NV_NVPROF_DEV_PACKAGE} \
     ${NV_LIBNPP_DEV_PACKAGE} \
-    libcusparse-dev-12-9=${NV_LIBCUSPARSE_DEV_VERSION} \
+    libcusparse-dev-12-2=${NV_LIBCUSPARSE_DEV_VERSION} \
     ${NV_LIBCUBLAS_DEV_PACKAGE} \
-    ${NV_CUDA_NSIGHT_COMPUTE_DEV_PACKAGE}
+    ${NV_CUDA_NSIGHT_COMPUTE_DEV_PACKAGE} \
+    && rm -rf /var/lib/apt/lists/*
+
     #${NV_LIBNCCL_DEV_PACKAGE} \
     ##${NV_LIBNCCL_DEV_PACKAGE_NAME}
-RUN apt-mark hold ${NV_LIBCUBLAS_DEV_PACKAGE_NAME} 
+RUN apt-mark hold ${NV_LIBCUBLAS_DEV_PACKAGE_NAME}
+# ${NV_LIBNCCL_DEV_PACKAGE_NAME}
 ENV LIBRARY_PATH /usr/local/cuda/lib64/stubs
-RUN apt install -y sudo gnupg2 zip lsb-release bash-completion iputils-ping mesa-utils python3 python3-pip \
+RUN apt update && apt install -y sudo gnupg2 zip lsb-release bash-completion iputils-ping mesa-utils python3 python3-pip \
 python3-numpy tmux build-essential software-properties-common terminator fonts-wqy-zenhei ffmpeg \
 dbus-x11 pulseaudio
 
@@ -53,8 +112,12 @@ RUN mkdir -p /usr/share/glvnd/egl_vendor.d/ && mkdir -p /etc/vulkan/icd.d/ && ec
 RUN VULKAN_API_VERSION=$(dpkg -s libvulkan1 | grep -oP 'Version: [0-9|\.]+' | grep -oP '[0-9]+(\.[0-9]+)(\.[0-9]+)')
 RUN echo -e '{\n"file_format_version" : "1.0.0",\n"ICD": {\n"library_path": "libGLX_nvidia.so.0",\n"api_version" : "'${VULKAN_API_VERSION}'"\n}\n}' > /etc/vulkan/icd.d/nvidia_icd.json
 
-
-
+#virtualGL
+RUN wget -q -O- https://packagecloud.io/dcommander/virtualgl/gpgkey | \
+    gpg --dearmor >/etc/apt/trusted.gpg.d/VirtualGL.gpg && \
+    wget https://raw.githubusercontent.com/VirtualGL/repo/main/VirtualGL.list -O /etc/apt/sources.list.d/VirtualGL.list && \
+    apt update && apt install -y virtualgl 
+   
 #安装npm
 RUN apt install -y -o APT::Install-Recommends=true npm
 
