@@ -2,4 +2,4 @@
 FROM docker.cnb.cool/set/playground/desktop:gputest
 
 #更新标记
-#20250713
+#20250716

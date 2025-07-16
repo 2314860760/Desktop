@@ -1,5 +1,5 @@
 #/bin/bash
-
+apt update
 #设置默认root密码(修改其中的 123qwe= 为你想要修改的密码也可以哦~)
 echo -e 'root:123qwe=' | chpasswd
 #设置默认user密码(同上)
@@ -100,4 +100,4 @@ chown -R user:user /home/user/Desktop/*.desktop
 #安装其他
 
 
-
+ rm -rf /var/lib/apt/lists/*

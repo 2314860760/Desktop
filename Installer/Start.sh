@@ -5,8 +5,8 @@ echo "      这可能需要1分钟"
 echo ""
 
 #启动VNC服务
-vncserver && websockify -D --web=/usr/share/novnc/ 10001 localhost:5901
-sudo -u user vncserver && websockify -D --web=/usr/share/novnc/ 10002 localhost:5902
+/opt/TurboVNC/bin/vncserver && websockify -D --web=/usr/share/novnc/ 10001 localhost:5901
+sudo -u user /opt/TurboVNC/bin/vncserver && websockify -D --web=/usr/share/novnc/ 10002 localhost:5902
 
 xdg-open http://localhost:10002
 
