@@ -5,17 +5,24 @@ echo -e 'root:123qwe=' | chpasswd
 #设置默认user密码(同上)
 echo -e 'user:123qwe=' | chpasswd
 
+#GPU相关代码
+update-alternatives --install /usr/bin/python python /usr/bin/python3 2
+export PATH=/usr/NX/scripts/vgl:$PATH
+env | grep -Ev "CMD=|PWD=|SHLVL=|_=|DEBIAN_FRONTEND=|USER=|HOME=|UID=|GID=|PASSWORD=" > /etc/environment
+usermod -aG sudo user
+usermod -aG ssl-cert user
+chsh -s /bin/bash user
 
 #设置root远程密码（可以修改这里的密码）
 rm -rf /root/.vnc/passwd
-mkdir -p /root/.vnc && vncpasswd <<EOF
+mkdir -p /root/.vnc && /opt/TurboVNC/bin/vncpasswd <<EOF
 123qwe=
 123qwe=
 n
 EOF
 #设置user远程密码(同上)
 rm -rf /home/user/.vnc/passwd
-mkdir -p /home/user/.vnc && chown -R user:user /home/user/.vnc && sudo -u user vncpasswd <<EOF
+mkdir -p /home/user/.vnc && chown -R user:user /home/user/.vnc && sudo -u user /opt/TurboVNC/bin/vncpasswd <<EOF
 123qwe=
 123qwe=
 n
