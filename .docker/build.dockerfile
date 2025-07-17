@@ -1,5 +1,5 @@
 # .ide/Dockerfile
-FROM docker.cnb.cool/set/file/dockerimages/desktop:gpu12.2.2-ubuntu22.04
+FROM docker.cnb.cool/set/file/dockerimages/desktop:gpu-ubuntu24.04-cu12.6.2 
 RUN apt-mark hold tzdata
 RUN apt update && apt upgrade -y && rm -rf /var/lib/apt/lists/*
 
