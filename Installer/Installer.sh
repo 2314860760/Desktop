@@ -8,7 +8,7 @@ echo "密码更新完成">>/tmp/log.txt;
 
 #GPU相关代码
 echo 'export PATH=/usr/NX/scripts/vgl:$PATH' >> /etc/profile
-#env | grep -Ev "CMD=|PWD=|SHLVL=|_=|DEBIAN_FRONTEND=|USER=|HOME=|UID=|GID=|PASSWORD=" > /etc/environment
+env | grep -Ev "CMD=|PWD=|SHLVL=|_=|DEBIAN_FRONTEND=|USER=|HOME=|UID=|GID=|PASSWORD=" > /etc/environment
 usermod -aG sudo user
 usermod -aG ssl-cert user
 chsh -s /bin/bash user
