@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 #设置默认root密码(修改其中的 123qwe= 为你想要修改的密码也可以哦~)
 echo -e 'root:123qwe=' | chpasswd
 #设置默认user密码(同上)
