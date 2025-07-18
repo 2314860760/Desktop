@@ -5,6 +5,8 @@ echo -e 'root:123qwe=' | chpasswd
 #设置默认user密码(同上)
 echo -e 'user:123qwe=' | chpasswd
 
+echo "密码更新完成";
+
 #GPU相关代码
 update-alternatives --install /usr/bin/python python /usr/bin/python3 2
 export PATH=/usr/NX/scripts/vgl:$PATH
@@ -12,6 +14,8 @@ env | grep -Ev "CMD=|PWD=|SHLVL=|_=|DEBIAN_FRONTEND=|USER=|HOME=|UID=|GID=|PASSW
 usermod -aG sudo user
 usermod -aG ssl-cert user
 chsh -s /bin/bash user
+
+echo "设置GPU代码完成";
 
 #设置root远程密码（可以修改这里的密码）
 rm -rf /root/.vnc/passwd
@@ -27,9 +31,11 @@ mkdir -p /home/user/.vnc && chown -R user:user /home/user/.vnc && sudo -u user /
 123qwe=
 n
 EOF
+echo "设置vnc密码完成";
 
 #重启Dbus
 service dbus restart
+echo "重启dbus完成";
 
 #设置数据库密码
 service mariadb start
@@ -37,6 +43,7 @@ mysql -u root <<EOF
 SET PASSWORD FOR 'root'@'localhost' = PASSWORD('123qwe=');
 FLUSH PRIVILEGES;
 EOF
+echo "设置密码完成";
 
 #创建IDEA全家桶快捷方式
 echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=CLion\nIcon=/opt/clion-2025.1.1/bin/clion.png\nExec=/opt/clion-2025.1.1/bin/clion\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Clion.desktop
@@ -85,6 +92,7 @@ ln -s /usr/share/applications/firefox.desktop /root/桌面/firefox.desktop
 #修复Home变量
 sed -i 's|export HOME=$(echo -e "/root")||' /etc/profile
 cp -r /root/桌面/* /root/Desktop
+echo "设置桌面快捷方式完成";
 
 #创建非root账号快捷方式
 mkdir -p /home/user/桌面 && chown -R user:user /home/user/桌面
@@ -109,6 +117,4 @@ chown -R user:user /home/user/Desktop/IntelijIDEA
 chown -R user:user /home/user/Desktop/*.desktop
 
 #安装其他
-
-
- rm -rf /var/lib/apt/lists/*
+echo "完成启动";
