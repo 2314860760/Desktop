@@ -43,18 +43,33 @@ FLUSH PRIVILEGES;
 EOF
 echo "设置密码完成";
 
+#设置硬件加速快捷方式
+tee /usr/share/applications/vglrun-adder.desktop >/dev/null <<'EOF'
+[Desktop Entry]
+Name=显卡加速
+Comment=拖放程序到这里添加显卡加速
+Icon=video-display
+Exec=/usr/local/bin/vglrun-wrapper %F
+Type=Application
+Terminal=false
+Categories=Utility;
+MimeType=application/x-desktop;
+EOF
+ln -s /usr/share/applications/vglrun-adder.desktop /home/user/桌面/vglrun.desktop
+ln -s /usr/share/applications/vglrun-adder.desktop /root/桌面/vglrun.desktop
+
 #创建IDEA全家桶快捷方式
-echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=CLion\nIcon=/opt/clion-2025.1.1/bin/clion.png\nExec=/opt/clion-2025.1.1/bin/clion\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Clion.desktop
-echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=Datagrip\nIcon=/opt/DataGrip-2025.1.2/bin/datagrip.png\nExec=/opt/DataGrip-2025.1.2/bin/datagrip\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/datagrip.desktop
-echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=GoLand\nIcon=/opt/GoLand-2025.1.1/bin/goland.png\nExec=/opt/GoLand-2025.1.1/bin/goland\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Goland.desktop
-echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=IntelliJ IDEA\nIcon=/opt/idea-IU-251.25410.129/bin/idea.png\nExec=/opt/idea-IU-251.25410.129/bin/idea\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/IntelijIdea.desktop
-echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=PhpStorm\nIcon=/opt/PhpStorm-251.25410.148/bin/phpstorm.png\nExec=/opt/PhpStorm-251.25410.148/bin/phpstorm\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Phpstorm.desktop
-echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=PyCharm\nIcon=/opt/pycharm-2025.1.1.1/bin/pycharm.png\nExec=/opt/pycharm-2025.1.1.1/bin/pycharm\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Pycharm.desktop
-echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=Rider\nIcon=/opt/Rider-2025.1.2/bin/rider.png\nExec=/opt/Rider-2025.1.2/bin/rider\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/rider.desktop
-echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=RubyMine\nIcon=/opt/RubyMine-2025.1.1/bin/rubymine.png\nExec=/opt/RubyMine-2025.1.1/bin/rubymine\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Rubymine.desktop
-echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=WebStorm\nIcon=/opt/WebStorm-251.25410.117/bin/webstorm.png\nExec=/opt/WebStorm-251.25410.117/bin/webstorm\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Webstorm.desktop
-echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=Dataspell\nIcon=/opt/dataspell-2025.1.2/bin/dataspell.png\nExec=/opt/dataspell-2025.1.2/bin/dataspell\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Dataspell.desktop
-echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=RustRover\nIcon=/opt/RustRover-2025.1.5/bin/rustrover.png\nExec=/opt/RustRover-2025.1.5/bin/rustrover\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/RustRover.desktop
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=CLion\nIcon=/opt/clion-2025.1.1/bin/clion.png\nExec=vglrun /opt/clion-2025.1.1/bin/clion\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Clion.desktop
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=Datagrip\nIcon=/opt/DataGrip-2025.1.2/bin/datagrip.png\nExec=vglrun /opt/DataGrip-2025.1.2/bin/datagrip\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/datagrip.desktop
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=GoLand\nIcon=/opt/GoLand-2025.1.1/bin/goland.png\nExec=vglrun /opt/GoLand-2025.1.1/bin/goland\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Goland.desktop
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=IntelliJ IDEA\nIcon=/opt/idea-IU-251.25410.129/bin/idea.png\nExec=vglrun /opt/idea-IU-251.25410.129/bin/idea\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/IntelijIdea.desktop
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=PhpStorm\nIcon=/opt/PhpStorm-251.25410.148/bin/phpstorm.png\nExec=vglrun /opt/PhpStorm-251.25410.148/bin/phpstorm\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Phpstorm.desktop
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=PyCharm\nIcon=/opt/pycharm-2025.1.1.1/bin/pycharm.png\nExec=vglrun /opt/pycharm-2025.1.1.1/bin/pycharm\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Pycharm.desktop
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=Rider\nIcon=/opt/Rider-2025.1.2/bin/rider.png\nExec=vglrun /opt/Rider-2025.1.2/bin/rider\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/rider.desktop
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=RubyMine\nIcon=/opt/RubyMine-2025.1.1/bin/rubymine.png\nExec=vglrun /opt/RubyMine-2025.1.1/bin/rubymine\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Rubymine.desktop
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=WebStorm\nIcon=/opt/WebStorm-251.25410.117/bin/webstorm.png\nExec=vglrun /opt/WebStorm-251.25410.117/bin/webstorm\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Webstorm.desktop
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=Dataspell\nIcon=/opt/dataspell-2025.1.2/bin/dataspell.png\nExec=vglrun /opt/dataspell-2025.1.2/bin/dataspell\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/Dataspell.desktop
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=RustRover\nIcon=/opt/RustRover-2025.1.5/bin/rustrover.png\nExec=vglrun /opt/RustRover-2025.1.5/bin/rustrover\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true' > /usr/share/applications/RustRover.desktop
 #创建Root用户快捷方式
 mkdir -p /root/桌面/IntelijIDEA/
 ln -s /usr/share/applications/Rubymine.desktop /root/桌面/IntelijIDEA/rubymine.desktop
@@ -74,19 +89,20 @@ sed -i 's|Exec=/usr/share/code/code %F|Exec=/usr/share/code/code --no-sandbox %F
 ln -s /usr/share/applications/code.desktop /root/桌面/code.desktop
 
 #创建QQ快捷方式
-sed -i 's|Exec=/opt/QQ/qq %U|Exec=/opt/QQ/qq --no-sandbox %U|' /usr/share/applications/qq.desktop
+sed -i 's|Exec=/opt/QQ/qq %U|Exec=vglrun /opt/QQ/qq --no-sandbox %U|' /usr/share/applications/qq.desktop
 ln -s /usr/share/applications/qq.desktop /root/桌面/QQ.desktop
 #创建微信快捷方式
-echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=微信\nIcon=wechat\nExec=/opt/wechat/wechat\nTerminal=false\nCategories=Network;\nStartupNotify=true' > /usr/share/applications/wechat.desktop
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=微信\nIcon=wechat\nExec=vglrun /opt/wechat/wechat\nTerminal=false\nCategories=Network;\nStartupNotify=true' > /usr/share/applications/wechat.desktop
 ln -s /usr/share/applications/wechat.desktop /root/桌面/wechat.desktop 
 #创建CrossOver快捷方式
-echo -e '#!/usr/bin/env xdg-open\n\n[Desktop Entry]\nEncoding=UTF-8\nType=Application\nX-Created-By=cxoffice-0\nCategories=X-cxmenu-cxoffice-0-29ra4ke;\nStartupNotify=true\nStartupWMClass=crossover\nIcon=cxmenu-cxoffice-0-crossover\nExec=/opt/cxoffice/bin/crossover %u\nName=Win跨平台crossover\nComment=Run Windows software with CrossOver' > /root/桌面/crossover.desktop
+echo -e '#!/usr/bin/env xdg-open\n\n[Desktop Entry]\nEncoding=UTF-8\nType=Application\nX-Created-By=cxoffice-0\nCategories=X-cxmenu-cxoffice-0-29ra4ke;\nStartupNotify=true\nStartupWMClass=crossover\nIcon=cxmenu-cxoffice-0-crossover\nExec=vglrun /opt/cxoffice/bin/crossover %u\nName=Win跨平台crossover\nComment=Run Windows software with CrossOver' > /root/桌面/crossover.desktop
 #创建FTP快捷方式
 ln -s /usr/share/applications/filezilla.desktop /root/桌面/filezilla.desktop
 #创建数据库管理器DBeaver快捷方式
 ln -s /usr/share/applications/dbeaver-ce.desktop /root/桌面/dbeaver.desktop
 #firefox浏览器快捷方式
 ln -s /usr/share/applications/firefox.desktop /root/桌面/firefox.desktop
+sed -i 's/^Exec=firefox %u/Exec=vglrun firefox %u/' /usr/share/applications/firefox.desktop
 #修复Home变量
 sed -i 's|export HOME=$(echo -e "/root")||' /etc/profile
 cp -r /root/桌面/* /root/Desktop
@@ -118,4 +134,7 @@ chown -R user:user /home/user/Desktop/*.desktop
 apt update
 
 #安装其他
+ln -sf /usr/NX/scripts/vgl/vglrun /usr/bin
+
+
 echo "完成启动";
