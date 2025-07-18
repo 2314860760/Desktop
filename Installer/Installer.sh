@@ -1,4 +1,5 @@
 #/bin/bash
+rm -rf /etc/apt/sources.list.d/mozilla.list
 apt update
 #设置默认root密码(修改其中的 123qwe= 为你想要修改的密码也可以哦~)
 echo -e 'root:123qwe=' | chpasswd
@@ -14,7 +15,6 @@ env | grep -Ev "CMD=|PWD=|SHLVL=|_=|DEBIAN_FRONTEND=|USER=|HOME=|UID=|GID=|PASSW
 usermod -aG sudo user
 usermod -aG ssl-cert user
 chsh -s /bin/bash user
-rm -rf /etc/apt/sources.list.d/mozilla.list
 echo "设置GPU代码完成";
 
 #设置root远程密码（可以修改这里的密码）
