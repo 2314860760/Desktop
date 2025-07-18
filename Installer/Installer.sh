@@ -44,17 +44,8 @@ EOF
 echo "设置密码完成";
 
 #设置硬件加速快捷方式
-tee /usr/share/applications/vglrun-adder.desktop >/dev/null <<'EOF'
-[Desktop Entry]
-Name=显卡加速
-Comment=拖放程序到这里添加显卡加速
-Icon=video-display
-Exec=/usr/local/bin/vglrun-wrapper %F
-Type=Application
-Terminal=false
-Categories=Utility;
-MimeType=application/x-desktop;
-EOF
+echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=显卡加速\nComment=拖放程序到这里添加显卡加速\nIcon=video-display\nExec=vglrun %F\nType=Application\nTerminal=false\nCategories=Utility;\nMimeType=application/x-desktop;' > /usr/share/applications/vglrun-adder.desktop
+
 ln -s /usr/share/applications/vglrun-adder.desktop /home/user/桌面/vglrun.desktop
 ln -s /usr/share/applications/vglrun-adder.desktop /root/桌面/vglrun.desktop
 
