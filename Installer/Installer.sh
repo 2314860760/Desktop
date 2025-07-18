@@ -4,16 +4,15 @@ echo -e 'root:123qwe=' | chpasswd
 #设置默认user密码(同上)
 echo -e 'user:123qwe=' | chpasswd
 
-echo "密码更新完成";
+echo "密码更新完成">>/tmp/log.txt;
 
 #GPU相关代码
-update-alternatives --install /usr/bin/python python /usr/bin/python3 2
 echo 'export PATH=/usr/NX/scripts/vgl:$PATH' >> /etc/profile
-env | grep -Ev "CMD=|PWD=|SHLVL=|_=|DEBIAN_FRONTEND=|USER=|HOME=|UID=|GID=|PASSWORD=" > /etc/environment
+#env | grep -Ev "CMD=|PWD=|SHLVL=|_=|DEBIAN_FRONTEND=|USER=|HOME=|UID=|GID=|PASSWORD=" > /etc/environment
 usermod -aG sudo user
 usermod -aG ssl-cert user
 chsh -s /bin/bash user
-echo "设置GPU代码完成";
+echo "设置GPU代码完成">>/tmp/log.txt;
 
 #设置root远程密码（可以修改这里的密码）
 rm -rf /root/.vnc/passwd
@@ -29,7 +28,7 @@ mkdir -p /home/user/.vnc && chown -R user:user /home/user/.vnc && sudo -u user v
 123qwe=
 n
 EOF
-echo "设置vnc密码完成";
+echo "设置vnc密码完成">>/tmp/log.txt;
 
 #设置数据库密码
 service mariadb start
@@ -37,7 +36,7 @@ mysql -u root <<EOF
 SET PASSWORD FOR 'root'@'localhost' = PASSWORD('123qwe=');
 FLUSH PRIVILEGES;
 EOF
-echo "设置密码完成";
+echo "设置密码完成">>/tmp/log.txt;
 
 #设置硬件加速快捷方式
 echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=显卡加速\nComment=拖放程序到这里添加显卡加速\nIcon=video-display\nExec=vglrun %F\nType=Application\nTerminal=false\nCategories=Utility;\nMimeType=application/x-desktop;' > /usr/share/applications/vglrun-adder.desktop
@@ -93,7 +92,7 @@ sed -i 's/^Exec=firefox %u/Exec=vglrun firefox %u/' /usr/share/applications/fire
 #修复Home变量
 sed -i 's|export HOME=$(echo -e "/root")||' /etc/profile
 cp -r /root/桌面/* /root/Desktop
-echo "设置桌面快捷方式完成";
+echo "设置桌面快捷方式完成">>/tmp/log.txt;
 
 #创建非root账号快捷方式
 mkdir -p /home/user/桌面 && chown -R user:user /home/user/桌面
@@ -126,6 +125,6 @@ ln -sf /usr/NX/scripts/vgl/vglrun /usr/bin
 
 #重启Dbus
 service dbus restart
-echo "重启dbus完成";
+echo "重启dbus完成">>/tmp/log.txt;
 
-echo "完成启动";
+echo "完成启动">>/tmp/log.txt;
