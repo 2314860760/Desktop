@@ -91,6 +91,7 @@ ln -s /usr/share/applications/firefox.desktop /root/桌面/firefox.desktop
 sed -i 's/^Exec=firefox %u/Exec=vglrun firefox %u/' /usr/share/applications/firefox.desktop
 #修复Home变量
 sed -i 's|export HOME=$(echo -e "/root")||' /etc/profile
+mkdir -p /root/Desktop
 cp -r /root/桌面/* /root/Desktop
 echo "设置桌面快捷方式完成">>/tmp/log.txt;
 
