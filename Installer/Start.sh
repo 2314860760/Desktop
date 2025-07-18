@@ -5,21 +5,6 @@ echo "      这可能需要1分钟"
 echo ""
 
 #启动VNC服务
-#设置root远程密码（可以修改这里的密码）
-rm -rf /root/.vnc/passwd
-mkdir -p /root/.vnc && vncpasswd <<EOF
-123qwe=
-123qwe=
-n
-EOF
-#设置user远程密码(同上)
-rm -rf /home/user/.vnc/passwd
-mkdir -p /home/user/.vnc && chown -R user:user /home/user/.vnc && sudo -u user vncpasswd <<EOF
-123qwe=
-123qwe=
-n
-EOF
-#echo "设置vnc密码完成";
 /opt/TurboVNC/bin/vncserver :1000 -rfbport 5901 -vgl -xstartup /root/.vnc/xstartup && websockify -D --web=/usr/share/novnc/ 10001 localhost:5901
 sudo -u user /opt/TurboVNC/bin/vncserver :1001 -rfbport 5902 -vgl -xstartup /home/user/.vnc/xstartup  && websockify -D --web=/usr/share/novnc/ 10002 localhost:5902
 xdg-open http://localhost:10002
