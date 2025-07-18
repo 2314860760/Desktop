@@ -80,8 +80,11 @@ echo -e '#!/usr/bin/env xdg-open\n\n[Desktop Entry]\nEncoding=UTF-8\nType=Applic
 ln -s /usr/share/applications/filezilla.desktop /root/桌面/filezilla.desktop
 #创建数据库管理器DBeaver快捷方式
 ln -s /usr/share/applications/dbeaver-ce.desktop /root/桌面/dbeaver.desktop
+#firefox浏览器快捷方式
+ln -s /usr/share/applications/firefox.desktop /root/桌面/firefox.desktop
 #修复Home变量
 sed -i 's|export HOME=$(echo -e "/root")||' /etc/profile
+cp -r /root/桌面/* /root/Desktop
 
 #创建非root账号快捷方式
 mkdir -p /home/user/桌面 && chown -R user:user /home/user/桌面
@@ -92,6 +95,7 @@ ln -s /usr/share/applications/wechat.desktop /home/user/桌面/wechat.desktop
 cp /root/桌面/crossover.desktop /home/user/桌面/crossover.desktop
 ln -s /usr/share/applications/filezilla.desktop /home/user/桌面/filezilla.desktop
 ln -s /usr/share/applications/dbeaver-ce.desktop /home/user/桌面/dbeaver.desktop
+ln -s /usr/share/applications/firefox.desktop /home/user/桌面/firefox.desktop
 
 chown -R user:user /home/user/桌面/IntelijIDEA
 chown -R user:user /home/user/桌面/*.desktop
