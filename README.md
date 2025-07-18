@@ -13,6 +13,7 @@
 
 ### 新更新GPU模式 -> GPU分支
 GPU分支支持GPU图形加速，可以运行硬件加速软件，云玩MC也可以！！！  
+[点击查看](https://cnb.cool/set/Playground/Desktop/-/tree/GPU)  
 
 预装跨平台组件，可以运行<b>Windows</b>程序。   
 其他预装程序可以查看[[其他信息]](./其他信息.md)中0x03部分。   
