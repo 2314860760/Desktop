@@ -31,10 +31,6 @@ n
 EOF
 echo "设置vnc密码完成";
 
-#重启Dbus
-service dbus restart
-echo "重启dbus完成";
-
 #设置数据库密码
 service mariadb start
 mysql -u root <<EOF
@@ -127,5 +123,9 @@ apt update
 #安装其他
 ln -sf /usr/NX/scripts/vgl/vglrun /usr/bin
 
+
+#重启Dbus
+service dbus restart
+echo "重启dbus完成";
 
 echo "完成启动";
