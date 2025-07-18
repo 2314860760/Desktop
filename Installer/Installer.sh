@@ -8,7 +8,7 @@ echo "密码更新完成";
 
 #GPU相关代码
 update-alternatives --install /usr/bin/python python /usr/bin/python3 2
-export PATH=/usr/NX/scripts/vgl:$PATH
+echo 'export PATH=/usr/NX/scripts/vgl:$PATH' >> /etc/profile
 env | grep -Ev "CMD=|PWD=|SHLVL=|_=|DEBIAN_FRONTEND=|USER=|HOME=|UID=|GID=|PASSWORD=" > /etc/environment
 usermod -aG sudo user
 usermod -aG ssl-cert user
