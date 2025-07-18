@@ -114,5 +114,8 @@ cp /home/user/桌面/*.desktop /home/user/Desktop/
 chown -R user:user /home/user/Desktop/IntelijIDEA
 chown -R user:user /home/user/Desktop/*.desktop
 
+#更新软件库
+apt update
+
 #安装其他
 echo "完成启动";

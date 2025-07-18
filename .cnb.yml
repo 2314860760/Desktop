@@ -11,6 +11,10 @@ $:
       stages:
         - name: 初始化环境
           script: chmod +x /workspace/Installer/Installer.sh && bash /workspace/Installer/Installer.sh
+        - name: vscode go
+          type: vscode:go
+        - name: ls
+          script: ls -al
 
 
 KDE:

@@ -2,8 +2,6 @@
 echo "      你好，世界！正在启动云桌面~"
 echo "      这可能需要1分钟"
 echo ""
-echo "正在更新软件源"
-apt update
 #启动VNC服务
 /opt/TurboVNC/bin/vncserver :1000 -rfbport 5901 -vgl -xstartup /root/.vnc/xstartup && websockify -D --web=/usr/share/novnc/ 10001 localhost:5901
 sudo -u user /opt/TurboVNC/bin/vncserver :1001 -rfbport 5902 -vgl -xstartup /home/user/.vnc/xstartup  && websockify -D --web=/usr/share/novnc/ 10002 localhost:5902
