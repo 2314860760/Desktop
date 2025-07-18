@@ -159,3 +159,17 @@ Other:
           script: sed -i 's|startplasma-x11|xterm -geometry 80x24+10+10 -ls|' /root/.vnc/xstartup /home/user/.vnc/xstartup
         - name: 初始化环境
           script: chmod +x /workspace/Installer/Installer.sh && bash /workspace/Installer/Installer.sh
+
+GPU:
+  vscode:
+    - docker:
+        build:
+          dockerfile: .docker/.dockerfile
+      runner:
+        tags: cnb:arch:amd64:gpu
+      services:
+        - vscode
+        - docker
+      stages:
+        - name: 初始化环境
+          script: chmod +x /workspace/Installer/Installer.sh && bash /workspace/Installer/Installer.sh
