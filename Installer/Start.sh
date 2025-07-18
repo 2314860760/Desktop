@@ -6,7 +6,6 @@ echo ""
 
 #启动VNC服务
 #设置root远程密码（可以修改这里的密码）
-apt install tigervnc-standalone-server tigervnc-common tightvncserver -y
 rm -rf /root/.vnc/passwd
 mkdir -p /root/.vnc && vncpasswd <<EOF
 123qwe=
