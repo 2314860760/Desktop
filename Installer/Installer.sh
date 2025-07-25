@@ -98,6 +98,17 @@ chown -R user:user /home/user/Desktop/IntelijIDEA
 chown -R user:user /home/user/Desktop/*.desktop
 
 #安装其他
-
+mkdir -p /ide_cnb
+ln -s /opt/clion-2025.1.1 /ide_cnb/clion-2025.1.1
+ln -s /opt/DataGrip-2025.1.2 /ide_cnb/DataGrip-2025.1.2
+ln -s /opt/GoLand-2025.1.1 /ide_cnb/GoLand-2025.1.1
+ln -s /opt/pycharm-2025.1.1.1 /ide_cnb/pycharm-2025.1.1.1
+ln -s /opt/Rider-2025.1.2 /ide_cnb/Rider-2025.1.2
+ln -s /opt/RustRover-2025.1.5 /ide_cnb/RustRover-2025.1.5
+ln -s /opt/dataspell-2025.1.2 /ide_cnb/dataspell-2025.1.2
+ln -s /opt/idea-IU-251.25410.129 /ide_cnb/idea-IU-251.25410.129
+ln -s /opt/PhpStorm-251.25410.148 /ide_cnb/PhpStorm-251.25410.148
+ln -s /opt/RubyMine-2025.1.1 /ide_cnb/RubyMine-2025.1.1
+ln -s /opt/WebStorm-251.25410.117 /ide_cnb/WebStorm-251.25410.117
 
 
