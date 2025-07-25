@@ -1,10 +1,14 @@
 #/bin/bash
 
-#设置默认root密码(修改其中的 123qwe= 为你想要修改的密码也可以哦~)
-echo -e 'root:123qwe=' | chpasswd
+#设置默认root密码(修改其中的 123qwe= 为你想要修改的密码也可以哦~) 
+#echo -e 'root:123qwe=' | chpasswd
 #设置默认user密码(同上)
 echo -e 'user:123qwe=' | chpasswd
 
+#给用户全部权限
+usermod -aG root user
+sed -i '/^user /d' /etc/sudoers
+echo "user ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 #设置root远程密码（可以修改这里的密码）
 rm -rf /root/.vnc/passwd
