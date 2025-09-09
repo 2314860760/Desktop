@@ -30,6 +30,8 @@ KDE:
       stages:
         - name: 初始化环境
           script: chmod +x /workspace/Installer/Installer.sh && bash /workspace/Installer/Installer.sh
+        - name: vscode go
+          type: vscode:go
           
 LXQT:
   vscode:
@@ -46,6 +48,8 @@ LXQT:
           script: sed -i 's|startplasma-x11|startlxqt|' /root/.vnc/xstartup /home/user/.vnc/xstartup
         - name: 初始化环境
           script: chmod +x /workspace/Installer/Installer.sh && bash /workspace/Installer/Installer.sh
+        - name: vscode go
+          type: vscode:go
 
 
 LXDE:
@@ -63,6 +67,8 @@ LXDE:
           script: sed -i 's|startplasma-x11|startlxde|' /root/.vnc/xstartup /home/user/.vnc/xstartup
         - name: 初始化环境
           script: chmod +x /workspace/Installer/Installer.sh && bash /workspace/Installer/Installer.sh
+        - name: vscode go
+          type: vscode:go
 
 XFace:
   vscode:
@@ -79,6 +85,8 @@ XFace:
           script: sed -i 's|startplasma-x11|startxfce4|' /root/.vnc/xstartup /home/user/.vnc/xstartup
         - name: 初始化环境
           script: chmod +x /workspace/Installer/Installer.sh && bash /workspace/Installer/Installer.sh
+        - name: vscode go
+          type: vscode:go
 
 
 Mate:
@@ -96,6 +104,8 @@ Mate:
           script: sed -i 's|startplasma-x11|mate-session|' /root/.vnc/xstartup /home/user/.vnc/xstartup
         - name: 初始化环境
           script: chmod +x /workspace/Installer/Installer.sh && bash /workspace/Installer/Installer.sh
+        - name: vscode go
+          type: vscode:go
           
 Gnome:
   vscode:
@@ -112,6 +122,8 @@ Gnome:
           script: sed -i 's|startplasma-x11|gnome-session|' /root/.vnc/xstartup /home/user/.vnc/xstartup
         - name: 初始化环境
           script: chmod +x /workspace/Installer/Installer.sh && bash /workspace/Installer/Installer.sh
+        - name: vscode go
+          type: vscode:go
 
 
 Cinnamon:
@@ -129,6 +141,8 @@ Cinnamon:
           script: sed -i 's|startplasma-x11|cinnamon-session|' /root/.vnc/xstartup /home/user/.vnc/xstartup
         - name: 初始化环境
           script: chmod +x /workspace/Installer/Installer.sh && bash /workspace/Installer/Installer.sh
+        - name: vscode go
+          type: vscode:go
 
 
 Openbox:
@@ -146,6 +160,8 @@ Openbox:
           script: sed -i 's|startplasma-x11|openbox|' /root/.vnc/xstartup /home/user/.vnc/xstartup
         - name: 初始化环境
           script: chmod +x /workspace/Installer/Installer.sh && bash /workspace/Installer/Installer.sh
+        - name: vscode go
+          type: vscode:go
 
 Other:
   vscode:
@@ -163,6 +179,8 @@ Other:
           script: sed -i 's|startplasma-x11|xterm -geometry 80x24+10+10 -ls|' /root/.vnc/xstartup /home/user/.vnc/xstartup
         - name: 初始化环境
           script: chmod +x /workspace/Installer/Installer.sh && bash /workspace/Installer/Installer.sh
+        - name: vscode go
+          type: vscode:go
 
 GPU:
   vscode:
@@ -177,3 +195,5 @@ GPU:
       stages:
         - name: 初始化环境
           script: chmod +x /workspace/Installer/Installer.sh && bash /workspace/Installer/Installer.sh
+        - name: vscode go
+          type: vscode:go
