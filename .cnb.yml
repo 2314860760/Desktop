@@ -188,7 +188,7 @@ GPU:
         build:
           dockerfile: .docker/.dockerfile
       runner:
-        tags: cnb:arch:amd64:gpu
+        tags: cnb:arch:amd64:gpu:H20
       services:
         - vscode
         - docker
