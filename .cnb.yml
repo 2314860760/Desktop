@@ -8,6 +8,9 @@ $:
       services:
         - vscode
         - docker
+      env:
+        NVIDIA_VISIBLE_DEVICES: all
+        NVIDIA_DRIVER_CAPABILITIES: compute,utility,graphics,video
       stages:
         - name: 初始化环境
           script: chmod +x /workspace/Installer/Installer.sh && bash /workspace/Installer/Installer.sh
@@ -189,6 +192,9 @@ GPU:
           dockerfile: .docker/.dockerfile
       runner:
         tags: cnb:arch:amd64:gpu
+      env:
+        NVIDIA_VISIBLE_DEVICES: all
+        NVIDIA_DRIVER_CAPABILITIES: compute,utility,graphics,video
       services:
         - vscode
         - docker
