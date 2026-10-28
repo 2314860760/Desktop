@@ -18,6 +18,8 @@ $:
       services:
         - *onlyPreview
         - docker
+      stages:
+        - echo "你好，世界！"
 
 GPU:
   vscode:
@@ -29,3 +31,8 @@ GPU:
       services:
         - *onlyPreview
         - docker
+      env:
+        NVIDIA_VISIBLE_DEVICES: all
+        NVIDIA_DRIVER_CAPABILITIES: compute,utility,graphics,video
+      stages:
+        - echo "你好，世界！"
