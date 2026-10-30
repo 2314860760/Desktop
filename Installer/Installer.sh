@@ -49,7 +49,8 @@ make_ide_desktop() {
     rm -f "/usr/share/applications/$file"
     return 0
   fi
-  echo -e "[Desktop Entry]\nVersion=1.0\nType=Application\nName=$name\nIcon=$root/bin/$bin.png\nExec=$root/bin/$bin\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true" > "/usr/share/applications/$file"
+  #显式带上输入法环境变量，避免IDE从无XMODIFIERS的入口启动后整个窗口无法调用输入法
+  echo -e "[Desktop Entry]\nVersion=1.0\nType=Application\nName=$name\nIcon=$root/bin/$bin.png\nExec=env GTK_IM_MODULE=fcitx QT_IM_MODULE=fcitx XMODIFIERS=@im=fcitx $root/bin/$bin\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true" > "/usr/share/applications/$file"
   echo "[快捷方式] $name -> $root"
 }
 
@@ -64,6 +65,14 @@ make_ide_desktop Rubymine.desktop "RubyMine" "/opt/RubyMine-*" rubymine
 make_ide_desktop Webstorm.desktop "WebStorm" "/opt/WebStorm-*" webstorm
 make_ide_desktop Dataspell.desktop "Dataspell" "/opt/dataspell-*" dataspell
 make_ide_desktop RustRover.desktop "RustRover" "/opt/RustRover-*" rustrover
+
+#修复JetBrains系IDE的中文输入(JBR 21+ 在X11下有时拿不到XIM，表现为输入法在IDE内根本切不出来)
+#awt.toolkit.name=auto 在X11会话里可能选到Wayland工具箱(不支持XIM)，这里强制回XToolkit
+for vm in /opt/*/bin/*64.vmoptions; do
+  [ -f "$vm" ] || continue
+  grep -qxF -- '-Drecreate.x11.input.method=true' "$vm" || echo '-Drecreate.x11.input.method=true' >> "$vm"
+  sed -i 's|^-Dawt.toolkit.name=.*|-Dawt.toolkit.name=XToolkit|' "$vm"
+done
 #创建Root用户快捷方式
 mkdir -p /root/桌面/IntelijIDEA/
 ln -s /usr/share/applications/Rubymine.desktop /root/桌面/IntelijIDEA/rubymine.desktop
