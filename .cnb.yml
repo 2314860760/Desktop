@@ -11,8 +11,7 @@
 $:
   vscode:
     - docker:
-        build:
-          dockerfile: .docker/.dockerfile
+        image: docker.cnb.cool/set/playground/desktop:main20261030
       runner:
         cpus: 32
       services:
@@ -24,8 +23,7 @@ $:
 GPU:
   vscode:
     - docker:
-        build:
-          dockerfile: .docker/.dockerfile
+        image: docker.cnb.cool/set/playground/desktop:GPU
       runner:
         tags: cnb:arch:amd64:gpu
       services:
