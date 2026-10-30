@@ -79,6 +79,12 @@ RUN for c in codebuddy claude dsh codex gemini copilot qwen amp crush opencode c
 #安装 WorkBuddy 桌面端(版本从腾讯官方更新服务动态获取，自动跟随最新版)
 RUN META=$(curl -fsSL "https://copilot.tencent.com/v2/update?platform=workbuddy-linux-x64-deb") && URL=$(printf '%s' "$META" | sed -n 's/.*"url":"\([^"]*\)".*/\1/p') && SHA=$(printf '%s' "$META" | sed -n 's/.*"sha256hash":"\([^"]*\)".*/\1/p') && wget "$URL" -O /opt/workbuddy.deb && echo "$SHA  /opt/workbuddy.deb" | sha256sum -c - && apt update && apt install -y /opt/workbuddy.deb && rm -rf /opt/workbuddy.deb /var/lib/apt/lists/*
 
+#安装 JBR 21 作为 IDE 运行时(JBR 25 的新 XIM 客户端在 Linux 下会丢掉中文提交，见 JBR-10465)
+#Installer.sh 检测到 /opt/jbr21 时会通过 IDEA_JDK 绑定，缺失则回退到 IDE 自带的 JBR 25
+RUN wget https://cache-redirector.jetbrains.com/intellij-jbr/jbr_jcef-21.0.10-linux-x64-b1163.108.tar.gz -O /opt/jbr21.tar.gz && \
+    mkdir -p /opt/jbr21 && tar -xzf /opt/jbr21.tar.gz -C /opt/jbr21 --strip-components=1 && rm -f /opt/jbr21.tar.gz && \
+    /opt/jbr21/bin/java -version
+
 ENV CNB_WELCOME_EXECUTE_COMMAND="chmod +x /workspace/Installer/Start.sh && bash /workspace/Installer/Start.sh"
 
 # 触发更新标记

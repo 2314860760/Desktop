@@ -42,7 +42,7 @@ ide_root() {
 
 #参数: desktop文件名 显示名称 安装目录通配符 启动程序名
 make_ide_desktop() {
-  local file="$1" name="$2" pattern="$3" bin="$4" root
+  local file="$1" name="$2" pattern="$3" bin="$4" root env_prefix
   root="$(ide_root "$pattern")"
   if [ -z "$root" ]; then
     echo "[跳过] 未安装 $name"
@@ -50,7 +50,10 @@ make_ide_desktop() {
     return 0
   fi
   #显式带上输入法环境变量，避免IDE从无XMODIFIERS的入口启动后整个窗口无法调用输入法
-  echo -e "[Desktop Entry]\nVersion=1.0\nType=Application\nName=$name\nIcon=$root/bin/$bin.png\nExec=env GTK_IM_MODULE=fcitx QT_IM_MODULE=fcitx XMODIFIERS=@im=fcitx $root/bin/$bin\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true" > "/usr/share/applications/$file"
+  env_prefix="env GTK_IM_MODULE=fcitx QT_IM_MODULE=fcitx XMODIFIERS=@im=fcitx"
+  #镜像内带了JBR 21时优先绑定：JBR 25 的新XIM客户端在X11下会丢掉已提交的中文(JBR-10465)
+  [ -x /opt/jbr21/bin/java ] && env_prefix="$env_prefix IDEA_JDK=/opt/jbr21"
+  echo -e "[Desktop Entry]\nVersion=1.0\nType=Application\nName=$name\nIcon=$root/bin/$bin.png\nExec=$env_prefix $root/bin/$bin\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true" > "/usr/share/applications/$file"
   echo "[快捷方式] $name -> $root"
 }
 
@@ -67,15 +70,22 @@ make_ide_desktop Dataspell.desktop "Dataspell" "/opt/dataspell-*" dataspell
 make_ide_desktop RustRover.desktop "RustRover" "/opt/RustRover-*" rustrover
 
 #修复JetBrains系IDE的中文输入
-#1) awt.toolkit.name=auto 在X11会话里会选到不支持XIM的工具箱，强制回XToolkit，否则输入法在IDE内根本切不出来
-#2) 预编辑交给输入法自己绘制(below-the-spot)，避免JBR接管后选词提交的中文被吞掉(文字闪一下消失)
-#3) 清掉旧版写入的 recreate.x11.input.method=true：切不出来的问题已由XToolkit解决，该参数会在焦点变化时重建输入法上下文，反而干扰上屏
+#1) awt.toolkit.name=auto 在X11会话里会选到不支持XIM的工具箱，统一固定回XToolkit，否则输入法在IDE内根本切不出来
+#2) 清掉之前试过的 recreate.x11.input.method / java.awt.im.style 参数，避免残留互相干扰
+#3) 运行时改用 JBR 21：JBR 25 的新XIM客户端(jbNewXimClient)在X11下会把已提交的中文丢掉(JBR-10465)
 for vm in /opt/*/bin/*64.vmoptions; do
   [ -f "$vm" ] || continue
   sed -i 's|^-Dawt.toolkit.name=.*|-Dawt.toolkit.name=XToolkit|' "$vm"
   sed -i '/^-Drecreate\.x11\.input\.method=/d' "$vm"
-  grep -qxF -- '-Djava.awt.im.style=below-the-spot' "$vm" || echo '-Djava.awt.im.style=below-the-spot' >> "$vm"
+  sed -i '/^-Djava\.awt\.im\.style=/d' "$vm"
 done
+
+#从终端启动IDE时同样走JBR 21
+if [ -x /opt/jbr21/bin/java ]; then
+  echo 'export IDEA_JDK=/opt/jbr21' > /etc/profile.d/jetbrains-jbr.sh
+else
+  rm -f /etc/profile.d/jetbrains-jbr.sh
+fi
 #创建Root用户快捷方式
 mkdir -p /root/桌面/IntelijIDEA/
 ln -s /usr/share/applications/Rubymine.desktop /root/桌面/IntelijIDEA/rubymine.desktop
