@@ -66,12 +66,15 @@ make_ide_desktop Webstorm.desktop "WebStorm" "/opt/WebStorm-*" webstorm
 make_ide_desktop Dataspell.desktop "Dataspell" "/opt/dataspell-*" dataspell
 make_ide_desktop RustRover.desktop "RustRover" "/opt/RustRover-*" rustrover
 
-#修复JetBrains系IDE的中文输入(JBR 21+ 在X11下有时拿不到XIM，表现为输入法在IDE内根本切不出来)
-#awt.toolkit.name=auto 在X11会话里可能选到Wayland工具箱(不支持XIM)，这里强制回XToolkit
+#修复JetBrains系IDE的中文输入
+#1) awt.toolkit.name=auto 在X11会话里会选到不支持XIM的工具箱，强制回XToolkit，否则输入法在IDE内根本切不出来
+#2) 预编辑交给输入法自己绘制(below-the-spot)，避免JBR接管后选词提交的中文被吞掉(文字闪一下消失)
+#3) 清掉旧版写入的 recreate.x11.input.method=true：切不出来的问题已由XToolkit解决，该参数会在焦点变化时重建输入法上下文，反而干扰上屏
 for vm in /opt/*/bin/*64.vmoptions; do
   [ -f "$vm" ] || continue
-  grep -qxF -- '-Drecreate.x11.input.method=true' "$vm" || echo '-Drecreate.x11.input.method=true' >> "$vm"
   sed -i 's|^-Dawt.toolkit.name=.*|-Dawt.toolkit.name=XToolkit|' "$vm"
+  sed -i '/^-Drecreate\.x11\.input\.method=/d' "$vm"
+  grep -qxF -- '-Djava.awt.im.style=below-the-spot' "$vm" || echo '-Djava.awt.im.style=below-the-spot' >> "$vm"
 done
 #创建Root用户快捷方式
 mkdir -p /root/桌面/IntelijIDEA/
