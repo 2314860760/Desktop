@@ -16,7 +16,7 @@ RUN wget https://download.java.net/java/GA/jdk24.0.1/24a58e0e276943138bf3e963e62
 
 #安装.net core
 RUN wget https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && dpkg -i packages-microsoft-prod.deb && rm packages-microsoft-prod.deb
-RUN apt-get update && apt-get install -y dotnet-sdk-8.0 dotnet-sdk-9.0
+RUN apt-get update && apt-get install -y dotnet-sdk-8.0 dotnet-sdk-9.0 dotnet-sdk-10.0
 
 #安装golang
 RUN wget https://golang.google.cn/dl/go1.24.2.linux-amd64.tar.gz -O /opt/go1.24.2.linux-amd64.tar.gz && rm -rf /usr/local/go && tar -C /usr/local -xzf /opt/go1.24.2.linux-amd64.tar.gz && rm -rf /opt/go1.24.2.linux-amd64.tar.gz

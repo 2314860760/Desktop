@@ -12,7 +12,9 @@
 💬聊天需求?微信QQ都满足你!  
 
 ### 新更新GPU模式 -> GPU分支
-GPU分支支持GPU图形加速，可以运行硬件加速软件，云玩MC也可以！！！  
+终于，GPU模式已经回归！欢迎体验  
+
+GPU分支支持GPU图形加速，可以运行硬件加速软件，云玩MC也可以！  
 [点击查看](https://cnb.cool/set/Playground/Desktop/-/tree/GPU)  
 
 ### 新更新IDEA远程开发模式 -> IDEA远程开发分支

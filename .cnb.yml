@@ -1,3 +1,13 @@
+.onlyPreview: &onlyPreview
+  name: vscode
+  options:
+    onlyPreview: true
+    launch: |
+      chmod +x /workspace/Installer/Installer.sh && bash /workspace/Installer/Installer.sh
+      chmod +x /workspace/Installer/Preview.sh && bash /workspace/Installer/Preview.sh
+    keepAliveTimeout: 10m
+    daemon: false
+
 $:
   vscode:
     - docker:
@@ -6,159 +16,10 @@ $:
       runner:
         cpus: 32
       services:
-        - vscode
+        - *onlyPreview
         - docker
       stages:
-        - name: 初始化环境
-          script: chmod +x /workspace/Installer/Installer.sh && bash /workspace/Installer/Installer.sh
-
-
-KDE:
-  vscode:
-    - docker:
-        build:
-          dockerfile: .docker/.dockerfile
-      runner:
-        cpus: 16
-      services:
-        - vscode
-        - docker
-      stages:
-        - name: 初始化环境
-          script: chmod +x /workspace/Installer/Installer.sh && bash /workspace/Installer/Installer.sh
-          
-LXQT:
-  vscode:
-    - docker:
-        build:
-          dockerfile: .docker/.dockerfile
-      runner:
-        cpus: 16
-      services:
-        - vscode
-        - docker
-      stages:
-        - name: 设置桌面
-          script: sed -i 's|startplasma-x11|startlxqt|' /root/.vnc/xstartup /home/user/.vnc/xstartup
-        - name: 初始化环境
-          script: chmod +x /workspace/Installer/Installer.sh && bash /workspace/Installer/Installer.sh
-
-
-LXDE:
-  vscode:
-    - docker:
-        build:
-          dockerfile: .docker/.dockerfile
-      runner:
-        cpus: 16
-      services:
-        - vscode
-        - docker
-      stages:
-        - name: 设置桌面
-          script: sed -i 's|startplasma-x11|startlxde|' /root/.vnc/xstartup /home/user/.vnc/xstartup
-        - name: 初始化环境
-          script: chmod +x /workspace/Installer/Installer.sh && bash /workspace/Installer/Installer.sh
-
-XFace:
-  vscode:
-    - docker:
-        build:
-          dockerfile: .docker/.dockerfile
-      runner:
-        cpus: 16
-      services:
-        - vscode
-        - docker
-      stages:
-        - name: 设置桌面
-          script: sed -i 's|startplasma-x11|startxfce4|' /root/.vnc/xstartup /home/user/.vnc/xstartup
-        - name: 初始化环境
-          script: chmod +x /workspace/Installer/Installer.sh && bash /workspace/Installer/Installer.sh
-
-
-Mate:
-  vscode:
-    - docker:
-        build:
-          dockerfile: .docker/.dockerfile
-      runner:
-        cpus: 16
-      services:
-        - vscode
-        - docker
-      stages:
-        - name: 设置桌面
-          script: sed -i 's|startplasma-x11|mate-session|' /root/.vnc/xstartup /home/user/.vnc/xstartup
-        - name: 初始化环境
-          script: chmod +x /workspace/Installer/Installer.sh && bash /workspace/Installer/Installer.sh
-          
-Gnome:
-  vscode:
-    - docker:
-        build:
-          dockerfile: .docker/.dockerfile
-      runner:
-        cpus: 16
-      services:
-        - vscode
-        - docker
-      stages:
-        - name: 设置桌面
-          script: sed -i 's|startplasma-x11|gnome-session|' /root/.vnc/xstartup /home/user/.vnc/xstartup
-        - name: 初始化环境
-          script: chmod +x /workspace/Installer/Installer.sh && bash /workspace/Installer/Installer.sh
-
-
-Cinnamon:
-  vscode:
-    - docker:
-        build:
-          dockerfile: .docker/.dockerfile
-      runner:
-        cpus: 16
-      services:
-        - vscode
-        - docker
-      stages:
-        - name: 设置桌面
-          script: sed -i 's|startplasma-x11|cinnamon-session|' /root/.vnc/xstartup /home/user/.vnc/xstartup
-        - name: 初始化环境
-          script: chmod +x /workspace/Installer/Installer.sh && bash /workspace/Installer/Installer.sh
-
-
-Openbox:
-  vscode:
-    - docker:
-        build:
-          dockerfile: .docker/.dockerfile
-      runner:
-        cpus: 16
-      services:
-        - vscode
-        - docker
-      stages:
-        - name: 设置桌面
-          script: sed -i 's|startplasma-x11|openbox|' /root/.vnc/xstartup /home/user/.vnc/xstartup
-        - name: 初始化环境
-          script: chmod +x /workspace/Installer/Installer.sh && bash /workspace/Installer/Installer.sh
-
-Other:
-  vscode:
-    - docker:
-        build:
-          dockerfile: .docker/.dockerfile
-      runner:
-        cpus: 16
-        tags: cnb:arch:amd64:gpu
-      services:
-        - vscode
-        - docker
-      stages:
-        - name: 设置桌面
-          script: sed -i 's|startplasma-x11|xterm -geometry 80x24+10+10 -ls|' /root/.vnc/xstartup /home/user/.vnc/xstartup
-        - name: 初始化环境
-          script: chmod +x /workspace/Installer/Installer.sh && bash /workspace/Installer/Installer.sh
+        - echo "你好，世界！"
 
 GPU:
   vscode:
@@ -168,8 +29,10 @@ GPU:
       runner:
         tags: cnb:arch:amd64:gpu
       services:
-        - vscode
+        - *onlyPreview
         - docker
+      env:
+        NVIDIA_VISIBLE_DEVICES: all
+        NVIDIA_DRIVER_CAPABILITIES: compute,utility,graphics,video
       stages:
-        - name: 初始化环境
-          script: chmod +x /workspace/Installer/Installer.sh && bash /workspace/Installer/Installer.sh
+        - echo "你好，世界！"
