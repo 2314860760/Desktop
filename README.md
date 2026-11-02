@@ -10,6 +10,7 @@
 📊数据分析?Datagrip也装了!还内置了数据库和数据库管理工具DBEaver  
 📁传输文件?FTP也装了！  
 💬聊天需求?微信QQ都满足你!  
+🤖AI Agent?ClaudeCode、DeepSeek、CodeBuddy、Codex 等 13 个终端 Agent 都放在桌面 `Agent服务` 文件夹里，双击即用！  
 
 ### 新更新GPU模式 -> GPU分支
 终于，GPU模式已经回归！欢迎体验  
@@ -20,6 +21,16 @@ GPU分支支持GPU图形加速，可以运行硬件加速软件，云玩MC也可
 ### 新更新IDEA远程开发模式 -> IDEA远程开发分支
 现在你可以直接打开在本地IDEA打开远程服务器代码,打开桌面后记得保留WebIDE页面,新建窗口找到CNB首页,并打开右上角头像 -> 我的云原生开发 -> 找到当前运行的项目
 [点击查看图片](./Img/IDEA.jpg)
+
+### 新更新 JetBrains 全家桶 -> 快捷方式自动适配版本
+IDE 升级到新版本（例如 2026.2）后桌面快捷方式不会失效：启动时会自动匹配已安装的最新版本，无需再改脚本。  
+![JetBrains 快捷方式](./Img/20261030jetbrainsupdate.png)
+
+### 新更新 AI Agent 服务 -> 桌面 Agent服务 文件夹
+桌面新增 `Agent服务` 文件夹，预置 ClaudeCode、CodeBuddy、DeepSeek、Codex、Gemini、Copilot、Qwen、Amp、Crush、OpenCode、Continue、iFlow、Cursor 等终端 Agent，以及 CodeBuddy IDE 与 WorkBuddy 桌面端，双击即可使用。  
+其中 DeepSeek 走 Web 界面：首次双击会在后台启动 `dsh web` 并自动打开浏览器页面，终端窗口可以直接关掉，服务不会跟着退出；服务已经在跑时再点一次只会重新打开页面，不会重复启动。  
+常用环境变量：`DSH_WEB_PORT`（默认 3080，被占用时自动往后找空闲端口）、日志 `~/.dsh-web.log`。  
+![Agent服务](./Img/20261030agentservices.png)
 
 
 🖥️预装跨平台组件，可以运行<b>Windows</b>程序。   
@@ -36,12 +47,15 @@ GPU分支支持GPU图形加速，可以运行硬件加速软件，云玩MC也可
 * 🔧查看[[云原生桌面使用说明]](./云原生桌面使用说明.md) 关于如何配置密码等自定义功能的说明  
 * 🖼️查看[[桌面图片]](./桌面图片.md) 关于选择不同桌面会得到怎样的界面的图片列表  
 * ℹ️查看[[其他信息]](./其他信息.md) 关于一些其他信息以及文件保存使用方面的高级玩法问题与说明  
+* 📆查看[[更新日志]](./更新日志.md) 关于每个版本的改动内容  
 
-### 🔑0x01 默认所有密码都是 `123qwe=`     
+### 🔑0x01 默认系统密码（root / user / sudo / 数据库）都是 `123qwe=`     
+图形控制台（KasmVNC）使用 `-SecurityTypes None` 内网直连，打开 10001/10002 时不再询问密码。  
+桌面已关闭空闲自动锁屏/熄屏：不会因为挂机被锁在锁屏界面（CNB 平台占用了 SSH，锁屏后不方便自救）。  
 ### 0x02 可根据分支切换桌面 
 KDE, XFace, LXDE, LXQT, MATE, CINNAMON等  具体可以看分支选择!   
 ⚠️目前由于GNOME桌面过度依赖Systemd,暂时无法正常运行(请避免选择Gnome分支)  
-🔵默认分支[master]是默认使用 KDE 桌面，如果其他桌面，请切换分支哦~
+🔵默认分支[main]是默认使用 KDE 桌面，如果其他桌面，请切换分支哦~
 
 ## ❓0xFF 疑难解决
 

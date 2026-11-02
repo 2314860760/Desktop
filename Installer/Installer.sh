@@ -24,6 +24,10 @@ EOF
 #重启Dbus
 service dbus restart
 
+#修复容器内的 pkexec/polkit 提权(没有 logind 时会报 Process not found)
+polkit_lib="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd)/Polkit.sh"
+if [ -f "$polkit_lib" ]; then . "$polkit_lib"; polkit_setup || true; fi
+
 #设置数据库密码
 service mariadb start
 mysql -u root <<EOF
@@ -51,8 +55,6 @@ make_ide_desktop() {
   fi
   #显式带上输入法环境变量，避免IDE从无XMODIFIERS的入口启动后整个窗口无法调用输入法
   env_prefix="env GTK_IM_MODULE=fcitx QT_IM_MODULE=fcitx XMODIFIERS=@im=fcitx"
-  #镜像内带了JBR 21时优先绑定：JBR 25 的新XIM客户端在X11下会丢掉已提交的中文(JBR-10465)
-  [ -x /opt/jbr21/bin/java ] && env_prefix="$env_prefix IDEA_JDK=/opt/jbr21"
   echo -e "[Desktop Entry]\nVersion=1.0\nType=Application\nName=$name\nIcon=$root/bin/$bin.png\nExec=$env_prefix $root/bin/$bin\nTerminal=false\nCategories=Development;IDE\nStartupNotify=true" > "/usr/share/applications/$file"
   echo "[快捷方式] $name -> $root"
 }
@@ -72,7 +74,6 @@ make_ide_desktop RustRover.desktop "RustRover" "/opt/RustRover-*" rustrover
 #修复JetBrains系IDE的中文输入
 #1) awt.toolkit.name=auto 在X11会话里会选到不支持XIM的工具箱，统一固定回XToolkit，否则输入法在IDE内根本切不出来
 #2) 清掉之前试过的 recreate.x11.input.method / java.awt.im.style 参数，避免残留互相干扰
-#3) 运行时改用 JBR 21：JBR 25 的新XIM客户端(jbNewXimClient)在X11下会把已提交的中文丢掉(JBR-10465)
 for vm in /opt/*/bin/*64.vmoptions; do
   [ -f "$vm" ] || continue
   sed -i 's|^-Dawt.toolkit.name=.*|-Dawt.toolkit.name=XToolkit|' "$vm"
@@ -80,12 +81,6 @@ for vm in /opt/*/bin/*64.vmoptions; do
   sed -i '/^-Djava\.awt\.im\.style=/d' "$vm"
 done
 
-#从终端启动IDE时同样走JBR 21
-if [ -x /opt/jbr21/bin/java ]; then
-  echo 'export IDEA_JDK=/opt/jbr21' > /etc/profile.d/jetbrains-jbr.sh
-else
-  rm -f /etc/profile.d/jetbrains-jbr.sh
-fi
 #创建Root用户快捷方式
 mkdir -p /root/桌面/IntelijIDEA/
 ln -s /usr/share/applications/Rubymine.desktop /root/桌面/IntelijIDEA/rubymine.desktop
@@ -167,6 +162,21 @@ agent_desktop_dirs() {
   done
 }
 
+#安装 DeepSeek Harness(dsh) 的 Web 启动器
+#dsh 只有 `dsh web` 才会起服务，而且前台运行会随窗口退出；统一走包装脚本，
+#由脚本负责后台拉起 / 复用已启动实例 / 打开浏览器页面
+DSH_LAUNCHER_DIR=/opt/youjingsenlin
+DSH_LAUNCHER="$DSH_LAUNCHER_DIR/dsh-web.sh"
+installer_dir="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd)"
+mkdir -p "$DSH_LAUNCHER_DIR"
+if [ -n "$installer_dir" ] && [ -f "$installer_dir/dsh-web.sh" ]; then
+  install -m 0755 "$installer_dir/dsh-web.sh" "$DSH_LAUNCHER"
+  echo "[快捷方式] DeepSeek -> $DSH_LAUNCHER"
+else
+  rm -f "$DSH_LAUNCHER"
+  echo "[跳过] 未找到 dsh-web.sh，DeepSeek 仍用 dsh 直接启动"
+fi
+
 #Agent 命令清单: 显示名|命令|图标
 AGENT_CLIS=(
   "ClaudeCode|claude|utilities-terminal"
@@ -194,6 +204,11 @@ make_agent_shortcuts() {
       IFS='|' read -r name cmd icon <<<"$entry"
       #命令不存在就跳过，避免留下点不开的快捷方式
       command -v "$cmd" >/dev/null 2>&1 || continue
+      #dsh 走包装脚本：后台起 `dsh web`，已启动时只打开页面
+      if [ "$cmd" = dsh ] && [ -x "$DSH_LAUNCHER" ]; then
+        printf '%s\n' '[Desktop Entry]' 'Version=1.0' 'Type=Application' "Name=$name" "Comment=$name Web 服务(已在运行则直接打开页面)" "Icon=$icon" "Exec=$DSH_LAUNCHER" 'Terminal=true' 'Categories=Development;' > "$dir/Agent服务/$name.desktop"
+        continue
+      fi
       printf '%s\n' '[Desktop Entry]' 'Version=1.0' 'Type=Application' "Name=$name" "Comment=$name 终端" "Icon=$icon" "Exec=$cmd" 'Terminal=true' 'Categories=Development;' > "$dir/Agent服务/$name.desktop"
     done
     #CodeBuddy IDE 直接复用安装包自带的 desktop 文件(前面已加 --no-sandbox)
