@@ -11,7 +11,7 @@
 $:
   vscode:
     - docker:
-        image: docker.cnb.cool/set/playground/desktop:main20261030
+        image: docker.cnb.cool/set/playground/desktop:main20261102
       runner:
         cpus: 32
       services:
