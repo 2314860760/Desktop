@@ -89,8 +89,11 @@ resolve_startup_command() {
   esac
 }
 
-# 优先复用镜像内已有的 xstartup(与 TigerVNC 时期行为一致)；
-# 缺失时从 root 复制，再缺失才生成一份带 dbus 的最小版本。
+# 显式写一份 xstartup。
+# 不能依赖镜像自带的 xstartup：Debian 上 TigerVNC 的默认会话走
+# /usr/bin/x-session-manager，而 xfce4-session 的 alternatives 优先级(50) 高于
+# startplasma-x11(40)，自动模式会选到 XFCE —— 这正是"分支是 KDE 却开了 XFCE"的原因。
+# 只有现有 xstartup 已经明确指定了目标桌面时才保留。
 ensure_xstartup() {
   local startup_command xs
   startup_command="$(resolve_startup_command)"
@@ -98,17 +101,22 @@ ensure_xstartup() {
 
   install -d -m 700 "${VNC_HOME}/.vnc"
 
-  if [ -f "${xs}" ]; then
-    sed -i "s|startplasma-x11|${startup_command}|" "${xs}"
-  elif [ -f /root/.vnc/xstartup ]; then
-    cp /root/.vnc/xstartup "${xs}"
-    sed -i "s|startplasma-x11|${startup_command}|" "${xs}"
+  if [ -f "${xs}" ] && grep -qF "${startup_command%% *}" "${xs}" && ! grep -q 'xinitrc' "${xs}"; then
+    : # 已是目标桌面的显式启动，保留
   else
     cat > "${xs}" <<EOF
 #!/bin/sh
+# 由 Installer/Preview.sh 生成：显式拉起 ${DESKTOP_SESSION}，
+# 避免走 /usr/bin/x-session-manager 的 alternatives 默认值(那里 XFCE 优先级更高)
 unset SESSION_MANAGER
 unset DBUS_SESSION_BUS_ADDRESS
-exec dbus-launch --exit-with-session ${startup_command}
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx
+export XMODIFIERS=@im=fcitx
+if command -v dbus-run-session >/dev/null 2>&1; then
+  exec dbus-run-session -- ${startup_command}
+fi
+exec ${startup_command}
 EOF
   fi
 

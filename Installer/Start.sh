@@ -7,30 +7,35 @@ KASM_BIN="${KASM_BIN:-/usr/bin/Xkasmvnc}"
 KASM_BIND="${KASM_BIND:-0.0.0.0}"
 VNC_GEOMETRY="${VNC_GEOMETRY:-1920x1080}"
 VNC_DEPTH="${VNC_DEPTH:-24}"
+# 默认桌面会话；需要别的桌面时用 DESKTOP_CMD=startlxqt 之类覆盖
+DESKTOP_CMD="${DESKTOP_CMD:-startplasma-x11}"
 
 echo "      你好，世界！正在启动云桌面~"
 echo "      这可能需要1分钟"
 echo ""
 
-# 确保目标用户有可用的 xstartup(缺省复用 /root 下镜像自带的那份)
+# 显式写一份 xstartup(参数: 用户 家目录 会话命令)。
+# 镜像自带的 xstartup 会走 /usr/bin/x-session-manager，而那里 XFCE 的
+# alternatives 优先级(50) 高于 startplasma-x11(40)，会错误地开出 XFCE 桌面。
 ensure_xstartup() {
-  local owner="$1" home="$2" xs
+  local owner="$1" home="$2" cmd="$3" xs
   xs="${home}/.vnc/xstartup"
 
   install -d -m 700 "${home}/.vnc"
 
-  if [ ! -f "${xs}" ] && [ -f /root/.vnc/xstartup ]; then
-    cp /root/.vnc/xstartup "${xs}"
-  fi
-
-  if [ ! -f "${xs}" ]; then
-    cat > "${xs}" <<EOF
+  cat > "${xs}" <<EOF
 #!/bin/sh
+# 由 Installer/Start.sh 生成：显式拉起目标桌面，不走 x-session-manager
 unset SESSION_MANAGER
 unset DBUS_SESSION_BUS_ADDRESS
-exec dbus-launch --exit-with-session startplasma-x11
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx
+export XMODIFIERS=@im=fcitx
+if command -v dbus-run-session >/dev/null 2>&1; then
+  exec dbus-run-session -- ${cmd}
+fi
+exec ${cmd}
 EOF
-  fi
 
   chmod 755 "${xs}"
   chown -R "${owner}:${owner}" "${home}/.vnc"
@@ -64,10 +69,10 @@ start_session() {
 }
 
 # root 会话(:1) 与 user 会话(:2)，浏览器分别访问 10001 / 10002
-ensure_xstartup root /root
+ensure_xstartup root /root "${DESKTOP_CMD}"
 start_session :1 10001 5901 root /root
 
-ensure_xstartup user /home/user
+ensure_xstartup user /home/user "${DESKTOP_CMD}"
 start_session :2 10002 5902 user /home/user
 
 xdg-open http://localhost:10002
