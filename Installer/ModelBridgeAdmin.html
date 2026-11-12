@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="admin-token" content="__ADMIN_TOKEN__">
+<title>模型网关管理</title>
+<style>
+  :root {
+    --bg: #10151b; --panel: #171f27; --line: #26313c; --text: #e6edf3;
+    --muted: #8b9bab; --accent: #3fb950; --warn: #d29922; --bad: #f85149;
+    --link: #58a6ff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 14px/1.6 -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+  }
+  header {
+    padding: 18px 24px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  header h1 { margin: 0; font-size: 18px; font-weight: 600; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); display: inline-block; }
+  .dot.ok { background: var(--accent); box-shadow: 0 0 8px rgba(63,185,80,.6); }
+  .dot.bad { background: var(--bad); }
+  .grow { flex: 1; }
+  .muted { color: var(--muted); }
+  main { max-width: 1080px; margin: 0 auto; padding: 20px 24px 60px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+    padding: 16px; margin-bottom: 16px;
+  }
+  .card h2 { margin: 0 0 12px; font-size: 15px; font-weight: 600; }
+  .kv { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; }
+  .kv span:first-child { color: var(--muted); }
+  .kv span:last-child { text-align: right; word-break: break-all; }
+  label { display: block; color: var(--muted); margin: 10px 0 4px; }
+  input {
+    width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line);
+    background: #0d1319; color: var(--text); font: inherit;
+  }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  button {
+    padding: 8px 14px; border-radius: 8px; border: 1px solid var(--line);
+    background: #1f2933; color: var(--text); cursor: pointer; font: inherit;
+  }
+  button:hover { border-color: #3d4a57; }
+  button.primary { background: #1f6feb; border-color: #1f6feb; }
+  button.primary:hover { background: #2f81f7; }
+  button:disabled { opacity: .55; cursor: default; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; font-size: 13px; }
+  tr:last-child td { border-bottom: 0; }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  pre {
+    margin: 0; padding: 12px; background: #0d1319; border: 1px solid var(--line);
+    border-radius: 8px; overflow: auto; max-height: 320px; white-space: pre-wrap; word-break: break-all;
+  }
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; border: 1px solid var(--line); color: var(--muted); }
+  .badge.ok { color: var(--accent); border-color: rgba(63,185,80,.4); }
+  .badge.bad { color: var(--bad); border-color: rgba(248,81,73,.4); }
+  .hint { color: var(--muted); font-size: 13px; margin: 6px 0 0; }
+  #toast {
+    position: fixed; right: 20px; bottom: 20px; padding: 10px 16px; border-radius: 8px;
+    background: #1f2933; border: 1px solid var(--line); opacity: 0; transition: opacity .2s;
+    pointer-events: none; max-width: 460px;
+  }
+  #toast.show { opacity: 1; }
+  #toast.bad { border-color: rgba(248,81,73,.6); }
+</style>
+</head>
+<body>
+<header>
+  <h1>模型网关管理</h1>
+  <span class="dot" id="dot"></span>
+  <span class="muted" id="headline">正在读取状态…</span>
+  <span class="grow"></span>
+  <span class="muted">仅监听 127.0.0.1</span>
+</header>
+
+<main>
+  <section class="card">
+    <h2>网关状态</h2>
+    <div class="grid">
+      <div class="kv"><span>运行状态</span><span id="gw-running">-</span></div>
+      <div class="kv"><span>监听端口</span><span id="gw-port">-</span></div>
+      <div class="kv"><span>当前模型</span><span id="gw-model">-</span></div>
+      <div class="kv"><span>版本 / 提交</span><span id="gw-version">-</span></div>
+      <div class="kv"><span>进程 PID</span><span id="gw-pid">-</span></div>
+      <div class="kv"><span>Agent 环境文件</span><span id="gw-env">-</span></div>
+    </div>
+    <div class="row">
+      <button id="btn-refresh">刷新状态</button>
+      <button id="btn-test">测试 /v1/models</button>
+      <button id="btn-restart">重启网关</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>网关配置</h2>
+    <p class="hint">保存后会写入 <code>/opt/youjingsenlin/modelbridge.conf</code> 并重启网关；改端口后请重新启动正在运行的 Agent。</p>
+    <label for="cfg-model">上游模型（会统一改写所有 Agent 的模型名）</label>
+    <input id="cfg-model" placeholder="deepseek-v4-flash" spellcheck="false">
+    <label for="cfg-port">监听端口（1024-65535）</label>
+    <input id="cfg-port" type="number" min="1024" max="65535" placeholder="8787">
+    <div class="row">
+      <button class="primary" id="btn-save">保存并重启</button>
+    </div>
+    <pre id="cfg-output" style="margin-top:12px;display:none"></pre>
+  </section>
+
+  <section class="card">
+    <h2>Agent 接入</h2>
+    <p class="hint">
+      ClaudeCode / Codex / Gemini / Qwen 等读标准环境变量的客户端，从桌面快捷方式启动时会自动注入；
+      不读环境变量的客户端，请把下面地址填到它自己的设置里（鉴权随意填，网关会用容器里注入的上游令牌）。
+    </p>
+    <table>
+      <thead>
+        <tr><th>Agent</th><th>命令</th><th>协议 / 状态</th><th>接入方式</th><th></th></tr>
+      </thead>
+      <tbody id="agent-body"></tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>网关日志（最后 15 行）</h2>
+    <pre id="log">-</pre>
+    <div class="row">
+      <button id="btn-log">加载更多</button>
+    </div>
+  </section>
+</main>
+
+<div id="toast"></div>
+
+<script>
+(() => {
+  const token = document.querySelector('meta[name="admin-token"]').content;
+  const $ = (id) => document.getElementById(id);
+  let state = null;
+
+  function toast(msg, bad) {
+    const el = $('toast');
+    el.textContent = msg;
+    el.className = 'show' + (bad ? ' bad' : '');
+    clearTimeout(el._timer);
+    el._timer = setTimeout(() => { el.className = ''; }, 3200);
+  }
+
+  async function api(path, options) {
+    const res = await fetch(path, options);
+    const type = res.headers.get('content-type') || '';
+    const data = type.includes('application/json') ? await res.json() : await res.text();
+    if (!res.ok) throw new Error((data && data.error) || ('HTTP ' + res.status));
+    return data;
+  }
+
+  function base() {
+    const port = state && state.gateway ? state.gateway.port : 8787;
+    return 'http://127.0.0.1:' + port;
+  }
+
+  function snippet(agent) {
+    const model = state && state.gateway ? state.gateway.model : 'deepseek-v4-flash';
+    if (agent.mode === 'anthropic') {
+      return [
+        'ANTHROPIC_BASE_URL=' + base(),
+        'ANTHROPIC_AUTH_TOKEN=cnb-local',
+        'ANTHROPIC_API_KEY=cnb-local'
+      ].join('\n');
+    }
+    if (agent.mode === 'gemini') {
+      return [
+        'GOOGLE_GEMINI_BASE_URL=' + base(),
+        'GEMINI_API_KEY=cnb-local'
+      ].join('\n');
+    }
+    return [
+      'OPENAI_BASE_URL=' + base() + '/v1',
+      'OPENAI_API_KEY=cnb-local',
+      'OPENAI_MODEL=' + model
+    ].join('\n');
+  }
+
+  function modeLabel(mode) {
+    if (mode === 'anthropic') return 'Anthropic 兼容';
+    if (mode === 'gemini') return 'Gemini 兼容';
+    if (mode === 'app') return '应用内配置';
+    return 'OpenAI 兼容';
+  }
+
+  async function copy(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast('已复制');
+    } catch (_) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+      toast('已复制');
+    }
+  }
+
+  function render() {
+    if (!state) return;
+    const gw = state.gateway;
+    $('dot').className = 'dot ' + (gw.running ? 'ok' : 'bad');
+    $('headline').textContent = gw.running
+      ? ('运行中 · ' + gw.model + ' · ' + base())
+      : '网关未运行' + (gw.error ? '（' + gw.error + '）' : '');
+    $('gw-running').innerHTML = gw.running ? '<span class="badge ok">运行中</span>' : '<span class="badge bad">未运行</span>';
+    $('gw-port').textContent = gw.port;
+    $('gw-model').textContent = gw.model;
+    $('gw-version').textContent = (gw.version || '-') + (gw.commit ? ' / ' + gw.commit.slice(0, 8) : '');
+    $('gw-pid').textContent = gw.pid || '-';
+    $('gw-env').textContent = gw.envReady ? '已生成' : '未生成';
+
+    // 自动刷新时不要覆盖用户正在输入的值
+    if (document.activeElement !== $('cfg-model')) $('cfg-model').value = gw.model;
+    if (document.activeElement !== $('cfg-port')) $('cfg-port').value = gw.port;
+
+    const tbody = $('agent-body');
+    tbody.textContent = '';
+    for (const agent of state.agents) {
+      const tr = document.createElement('tr');
+      const status = agent.installed ? '<span class="badge ok">已安装</span>' : '<span class="badge">未安装</span>';
+      tr.innerHTML =
+        '<td>' + agent.name + '</td>' +
+        '<td><code>' + agent.cmd + '</code></td>' +
+        '<td>' + modeLabel(agent.mode) + '<br>' + status + '</td>' +
+        '<td class="muted">' + agent.note + '</td>' +
+        '<td></td>';
+      const btn = document.createElement('button');
+      btn.textContent = '复制配置';
+      btn.addEventListener('click', () => copy(snippet(agent)));
+      tr.lastElementChild.appendChild(btn);
+      tbody.appendChild(tr);
+    }
+
+    $('log').textContent = state.log || '（暂无日志）';
+  }
+
+  async function refresh() {
+    try {
+      state = await api('/api/status');
+      render();
+    } catch (err) {
+      $('headline').textContent = '管理服务异常：' + err.message;
+      $('dot').className = 'dot bad';
+    }
+  }
+
+  async function post(path, body) {
+    return api(path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token },
+      body: JSON.stringify(body || {})
+    });
+  }
+
+  $('btn-refresh').addEventListener('click', refresh);
+
+  $('btn-test').addEventListener('click', async () => {
+    try {
+      const r = await api('/api/test');
+      if (r.ok) {
+        toast('模型列表正常：' + (r.models || []).join(', '));
+      } else {
+        toast('调用失败：' + (r.error || r.status), true);
+      }
+    } catch (err) {
+      toast(err.message, true);
+    }
+  });
+
+  $('btn-restart').addEventListener('click', async () => {
+    const btn = $('btn-restart');
+    btn.disabled = true;
+    try {
+      const r = await post('/api/restart');
+      toast(r.ok ? '网关已重启' : '重启失败', !r.ok);
+      await refresh();
+    } catch (err) {
+      toast(err.message, true);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  $('btn-save').addEventListener('click', async () => {
+    const model = $('cfg-model').value.trim();
+    const port = Number($('cfg-port').value);
+    const out = $('cfg-output');
+    const btn = $('btn-save');
+    btn.disabled = true;
+    out.style.display = 'block';
+    out.textContent = '正在重启网关…';
+    try {
+      const r = await post('/api/config', { model, port });
+      out.textContent = r.output || '完成';
+      toast(r.ok ? '配置已保存，网关已重启' : '配置已写入，但重启失败', !r.ok);
+      await refresh();
+    } catch (err) {
+      out.textContent = err.message;
+      toast(err.message, true);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  $('btn-log').addEventListener('click', async () => {
+    try {
+      const text = await api('/api/log?lines=300');
+      $('log').textContent = text || '（暂无日志）';
+      toast('已加载 300 行');
+    } catch (err) {
+      toast(err.message, true);
+    }
+  });
+
+  refresh();
+  setInterval(refresh, 15000);
+})();
+</script>
+</body>
+</html>

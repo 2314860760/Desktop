@@ -32,6 +32,15 @@ IDE 升级到新版本（例如 2026.2）后桌面快捷方式不会失效：启
 常用环境变量：`DSH_WEB_PORT`（默认 3080，被占用时自动往后找空闲端口）、日志 `~/.dsh-web.log`。  
 ![Agent服务](./Img/20261030agentservices.png)
 
+### 新更新 CNB 模型网关(ModelBridge) -> Agent 免登录
+桌面启动时会自动拉起本地模型网关 ModelBridge（`http://127.0.0.1:8787`，只监听回环），把 CNB 环境已经注入的 ai-ide 上游同时转成 **OpenAI Chat / OpenAI Responses / Claude Messages / Gemini / Ollama** 兼容入口。读标准环境变量的 Agent（ClaudeCode、Codex、Gemini、Qwen 等）从桌面快捷方式启动也免登录；其余客户端可在管理页复制地址后手动填。  
+默认模型 `deepseek-v4-flash`（各 Agent 自带的 `claude-sonnet-4-5`、`gpt-5-codex` 等模型名会被网关统一改写，否则上游会报 `MODEL_NOT_IN_LIST`）。  
+桌面 `Agent服务` 里新增「模型网关」与「模型网关管理」：前者看命令行状态，后者直接打开本地管理页 `http://127.0.0.1:8788`，可改模型/端口、重启、看日志、复制各 Agent 的 baseURL/Key。  
+日志在 `/opt/youjingsenlin/modelbridge.log`，手动管理用 `/opt/youjingsenlin/ModelBridge.sh start|stop|status`。  
+ClaudeCode、Codex、Gemini、Qwen 等读标准环境变量的 Agent，从桌面快捷方式启动也会自动注入（`agent-env.sh` 包装），无需登录；走自家账号的客户端可在管理页复制配置后手动填。  
+二进制固定为 `v1.30.3-senlin.1`，镜像构建时校验 sha256，运行期缺失会按同一版本补装。  
+详见 [[云原生桌面使用说明]](./云原生桌面使用说明.md) 第 6 节。
+
 
 🖥️预装跨平台组件，可以运行<b>Windows</b>程序。   
 📂其他预装程序可以查看[[其他信息]](./其他信息.md)中0x03部分。   

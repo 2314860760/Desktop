@@ -162,12 +162,65 @@ agent_desktop_dirs() {
   done
 }
 
+installer_dir="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd)"
+
+#安装并启动 CNB 模型转发网关(ModelBridge)
+#CNB 已经在容器里注入了 ai-ide 上游(ACC_PRODUCT_CONFIG_V2)，ModelBridge 把它同时暴露成
+#OpenAI/Claude/Gemini/Ollama 兼容入口，桌面里的 Agent 改个 baseURL 就能免登录用 CNB 的模型。
+#网关只监听 127.0.0.1:8787，root 与 user 两个桌面会话共用；启动失败不影响桌面本身。
+MODELBRIDGE_LAUNCHER_DIR=/opt/youjingsenlin
+MODELBRIDGE_LAUNCHER="$MODELBRIDGE_LAUNCHER_DIR/ModelBridge.sh"
+mkdir -p "$MODELBRIDGE_LAUNCHER_DIR"
+if [ -n "$installer_dir" ] && [ -f "$installer_dir/ModelBridge.sh" ]; then
+  install -m 0755 "$installer_dir/ModelBridge.sh" "$MODELBRIDGE_LAUNCHER"
+  bash "$MODELBRIDGE_LAUNCHER" start || echo "[警告] 模型网关未启动，Agent 仍按各自登录方式使用"
+else
+  rm -f "$MODELBRIDGE_LAUNCHER"
+  echo "[跳过] 未找到 ModelBridge.sh"
+fi
+
+#Agent 启动环境包装器：KDE 的 .desktop 是直接 exec，不经过登录 shell，
+#不会加载 /etc/profile.d；包装器在启动 Agent 前注入网关 env（先探活，网关没起来就跳过）。
+AGENT_ENV="$MODELBRIDGE_LAUNCHER_DIR/agent-env.sh"
+if [ -n "$installer_dir" ] && [ -f "$installer_dir/agent-env.sh" ]; then
+  install -m 0755 "$installer_dir/agent-env.sh" "$AGENT_ENV"
+else
+  rm -f "$AGENT_ENV"
+fi
+
+#本地管理页：看状态 / 改模型与端口 / 复制各 Agent 接入配置，只监听 127.0.0.1:8788
+MODELBRIDGE_ADMIN_LAUNCHER="$MODELBRIDGE_LAUNCHER_DIR/ModelBridgeAdmin.sh"
+if [ -n "$installer_dir" ] && [ -f "$installer_dir/ModelBridgeAdmin.sh" ] \
+  && [ -f "$installer_dir/ModelBridgeAdmin.js" ] && [ -f "$installer_dir/ModelBridgeAdmin.html" ]; then
+  install -m 0755 "$installer_dir/ModelBridgeAdmin.sh" "$MODELBRIDGE_ADMIN_LAUNCHER"
+  install -m 0644 "$installer_dir/ModelBridgeAdmin.js" "$MODELBRIDGE_LAUNCHER_DIR/ModelBridgeAdmin.js"
+  install -m 0644 "$installer_dir/ModelBridgeAdmin.html" "$MODELBRIDGE_LAUNCHER_DIR/ModelBridgeAdmin.html"
+  bash "$MODELBRIDGE_ADMIN_LAUNCHER" start || echo "[警告] 模型网关管理页未启动"
+else
+  rm -f "$MODELBRIDGE_ADMIN_LAUNCHER" "$MODELBRIDGE_LAUNCHER_DIR/ModelBridgeAdmin.js" "$MODELBRIDGE_LAUNCHER_DIR/ModelBridgeAdmin.html"
+  echo "[跳过] 未找到 ModelBridgeAdmin.*"
+fi
+
+#让桌面终端里的 Agent 默认指向网关。
+#网关就绪时 ModelBridge.sh 会写 /opt/youjingsenlin/modelbridge.env，这里只负责在 shell 里加载；
+#env 不存在时什么都不做，各 Agent 保持原有登录方式。
+MODELBRIDGE_PROFILE=/etc/profile.d/99-cnb-model-gateway.sh
+cat > "$MODELBRIDGE_PROFILE" <<'EOF'
+# 由 Installer/Installer.sh 生成：桌面终端默认走本机 ModelBridge 网关
+# 网关没起来时 /opt/youjingsenlin/modelbridge.env 不存在，各 Agent 保持原有登录方式
+if [ -r /opt/youjingsenlin/modelbridge.env ]; then
+  . /opt/youjingsenlin/modelbridge.env
+fi
+EOF
+chmod 644 "$MODELBRIDGE_PROFILE"
+#非登录的交互式 bash 只读 /etc/bash.bashrc，补一行（脚本每次启动都跑，已加过就跳过）
+grep -q '99-cnb-model-gateway' /etc/bash.bashrc 2>/dev/null || printf '\n# CNB 模型网关环境变量\nif [ -r /etc/profile.d/99-cnb-model-gateway.sh ]; then . /etc/profile.d/99-cnb-model-gateway.sh; fi\n' >> /etc/bash.bashrc
+
 #安装 DeepSeek Harness(dsh) 的 Web 启动器
 #dsh 只有 `dsh web` 才会起服务，而且前台运行会随窗口退出；统一走包装脚本，
 #由脚本负责后台拉起 / 复用已启动实例 / 打开浏览器页面
 DSH_LAUNCHER_DIR=/opt/youjingsenlin
 DSH_LAUNCHER="$DSH_LAUNCHER_DIR/dsh-web.sh"
-installer_dir="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd)"
 mkdir -p "$DSH_LAUNCHER_DIR"
 if [ -n "$installer_dir" ] && [ -f "$installer_dir/dsh-web.sh" ]; then
   install -m 0755 "$installer_dir/dsh-web.sh" "$DSH_LAUNCHER"
@@ -195,7 +248,7 @@ AGENT_CLIS=(
 )
 
 make_agent_shortcuts() {
-  local home="$1" owner="$2" dir dirs entry name cmd icon
+  local home="$1" owner="$2" dir dirs entry name cmd icon exec_cmd
   dirs="$(agent_desktop_dirs "$home" | sort -u)"
   [ -n "$dirs" ] || dirs="$home/桌面"
   for dir in $dirs; do
@@ -209,8 +262,19 @@ make_agent_shortcuts() {
         printf '%s\n' '[Desktop Entry]' 'Version=1.0' 'Type=Application' "Name=$name" "Comment=$name Web 服务(已在运行则直接打开页面)" "Icon=$icon" "Exec=$DSH_LAUNCHER" 'Terminal=true' 'Categories=Development;' > "$dir/Agent服务/$name.desktop"
         continue
       fi
-      printf '%s\n' '[Desktop Entry]' 'Version=1.0' 'Type=Application' "Name=$name" "Comment=$name 终端" "Icon=$icon" "Exec=$cmd" 'Terminal=true' 'Categories=Development;' > "$dir/Agent服务/$name.desktop"
+      #统一走 agent-env.sh：桌面快捷方式直接 exec，不会被登录 shell 加载 profile.d
+      exec_cmd="$cmd"
+      [ -x "$AGENT_ENV" ] && exec_cmd="$AGENT_ENV $cmd"
+      printf '%s\n' '[Desktop Entry]' 'Version=1.0' 'Type=Application' "Name=$name" "Comment=$name 终端" "Icon=$icon" "Exec=$exec_cmd" 'Terminal=true' 'Categories=Development;' > "$dir/Agent服务/$name.desktop"
     done
+    #模型网关状态入口：确认网关是否在跑、用的哪个模型、日志在哪（Agent 连不上时先看这里）
+    if [ -x "$MODELBRIDGE_LAUNCHER" ]; then
+      printf '%s\n' '[Desktop Entry]' 'Version=1.0' 'Type=Application' 'Name=模型网关' 'Comment=查看 CNB 模型网关(ModelBridge)状态与日志' 'Icon=utilities-terminal' "Exec=$MODELBRIDGE_LAUNCHER status" 'Terminal=true' 'Categories=Development;' > "$dir/Agent服务/模型网关.desktop"
+    fi
+    #本地管理页入口：浏览器里改模型/端口、看日志、复制各 Agent 配置
+    if [ -x "$MODELBRIDGE_ADMIN_LAUNCHER" ]; then
+      printf '%s\n' '[Desktop Entry]' 'Version=1.0' 'Type=Application' 'Name=模型网关管理' 'Comment=打开本机模型网关管理页（状态/模型/端口/Agent 配置）' 'Icon=applications-internet' "Exec=$MODELBRIDGE_ADMIN_LAUNCHER open" 'Terminal=false' 'Categories=Development;' > "$dir/Agent服务/模型网关管理.desktop"
+    fi
     #CodeBuddy IDE 直接复用安装包自带的 desktop 文件(前面已加 --no-sandbox)
     #只改主入口的 Name，不能动 [Desktop Action] 里的 Name
     sed '0,/^Name=/{s|^Name=.*|Name=CodeBuddy IDE|}' /usr/share/applications/buddycn.desktop > "$dir/Agent服务/CodeBuddy IDE.desktop"

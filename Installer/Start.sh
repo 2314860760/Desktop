@@ -2,6 +2,15 @@
 # 启动云桌面(KasmVNC 版)
 # 每个会话由独立的 Xkasmvnc 进程提供：X server + 浏览器客户端共用同一个端口
 
+# 兜底拉起模型网关与管理页：Installer.sh 没执行（例如自定义 launch）时也能用；
+# 后台执行，不阻塞桌面启动，失败不影响桌面本身
+if [ "$(id -u)" = "0" ]; then
+  MB_FALLBACK=/opt/youjingsenlin/ModelBridge.sh
+  [ -x "$MB_FALLBACK" ] || MB_FALLBACK=/workspace/Installer/ModelBridge.sh
+  [ -r "$MB_FALLBACK" ] && ( bash "$MB_FALLBACK" start >/dev/null 2>&1 || true ) &
+  [ -x /opt/youjingsenlin/ModelBridgeAdmin.sh ] && ( bash /opt/youjingsenlin/ModelBridgeAdmin.sh start >/dev/null 2>&1 || true ) &
+fi
+
 # 关闭各桌面的空闲锁屏(CNB 平台占用 SSH，锁屏后用户无法自救)
 NOLOCK_LIB="$(cd "$(dirname "$0")" 2>/dev/null && pwd)/NoLock.sh"
 if [ -f "$NOLOCK_LIB" ]; then . "$NOLOCK_LIB"; else disable_screen_lock() { :; }; fi

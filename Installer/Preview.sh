@@ -9,6 +9,15 @@ if [ -f "$NOLOCK_LIB" ]; then . "$NOLOCK_LIB"; else disable_screen_lock() { :; }
 
 set -euo pipefail
 
+# 兜底：桌面拉起时确保模型网关与管理页在跑（Installer.sh 未执行时也能工作），
+# 后台执行，失败不影响桌面；管理员/普通用户共用同一个回环端口
+if [ "$(id -u)" = "0" ]; then
+  MB_FALLBACK=/opt/youjingsenlin/ModelBridge.sh
+  [ -x "$MB_FALLBACK" ] || MB_FALLBACK=/workspace/Installer/ModelBridge.sh
+  [ -r "$MB_FALLBACK" ] && ( bash "$MB_FALLBACK" start >/dev/null 2>&1 || true ) &
+  [ -x /opt/youjingsenlin/ModelBridgeAdmin.sh ] && ( bash /opt/youjingsenlin/ModelBridgeAdmin.sh start >/dev/null 2>&1 || true ) &
+fi
+
 VNC_DISPLAY="${VNC_DISPLAY:-:2}"
 VNC_PORT="${VNC_PORT:-5902}"
 # 浏览器直连端口；沿用旧变量名 NOVNC_PORT 以兼容既有配置
