@@ -9,6 +9,7 @@
 // 安全：绑定回环 + 每次启动生成 admin.token，写操作必须带 X-Admin-Token。
 
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
@@ -22,7 +23,7 @@ const LAUNCHER = path.join(DIR, 'ModelBridge.sh');
 const PAGE_FILE = path.join(DIR, 'ModelBridgeAdmin.html');
 const TOKEN_FILE = path.join(DIR, 'admin.token');
 const PORT = Number(process.env.MODELBRIDGE_ADMIN_PORT || 8788);
-const DEFAULT_MODEL = 'deepseek-v4-flash';
+const DEFAULT_MODEL = 'deepseek-v4.1-flash';
 const DEFAULT_PORT = 8787;
 
 const AGENTS = [
@@ -122,6 +123,100 @@ function parseJson(text) {
   try { return JSON.parse(text); } catch (_) { return null; }
 }
 
+function getJson(url, headers, timeout = 8000) {
+  return new Promise((resolve) => {
+    const lib = url.startsWith('https:') ? https : http;
+    const req = lib.get(url, { headers }, (res) => {
+      let body = '';
+      res.setEncoding('utf8');
+      res.on('data', (chunk) => { body += chunk; });
+      res.on('end', () => {
+        if (res.statusCode < 200 || res.statusCode >= 300) {
+          resolve({ ok: false, error: `HTTP ${res.statusCode}`, body: body.slice(0, 300) });
+          return;
+        }
+        const parsed = parseJson(body);
+        if (!parsed) {
+          resolve({ ok: false, error: '上游返回的不是 JSON', body: body.slice(0, 300) });
+          return;
+        }
+        resolve({ ok: true, json: parsed });
+      });
+    });
+    req.on('error', (err) => resolve({ ok: false, error: err.message }));
+    req.setTimeout(timeout, () => {
+      req.destroy();
+      resolve({ ok: false, error: 'timeout' });
+    });
+  });
+}
+
+// Codebuddy 上游配置：优先完整 JSON，缺失时用 CNB_TOKEN 合成，和 ModelBridge.sh 的规则一致
+function upstreamConfig() {
+  const raw = process.env.ACC_PRODUCT_CONFIG_V2 || '';
+  if (raw) {
+    try {
+      const cfg = JSON.parse(raw);
+      const endpoint = String(cfg.endpoint || '').trim().replace(/\/+$/, '');
+      const token = cfg.authentication && cfg.authentication.attributes && cfg.authentication.attributes.token;
+      if (endpoint && token) return { endpoint, token };
+    } catch (_) { /* 交给下面的兜底 */ }
+  }
+  const api = (process.env.CNB_API_ENDPOINT || 'https://api.cnb.cool').replace(/\/+$/, '');
+  const slug = process.env.CNB_REPO_SLUG || '';
+  const token = process.env.CNB_TOKEN || '';
+  if (slug && token) return { endpoint: `${api}/${slug}/-/ai-ide`, token };
+  return null;
+}
+
+let modelCache = { at: 0, data: null };
+
+async function fetchModelList(force) {
+  const now = Date.now();
+  if (!force && modelCache.data && now - modelCache.at < 5 * 60 * 1000) {
+    return modelCache.data;
+  }
+  const cfg = upstreamConfig();
+  if (!cfg) {
+    return { ok: false, error: '未找到上游配置（ACC_PRODUCT_CONFIG_V2 / CNB_TOKEN）' };
+  }
+  let base = (process.env.MODELBRIDGE_UPSTREAM_ENDPOINT || cfg.endpoint).replace(/\/+$/, '');
+  if (!/\/v3\/config$/.test(base)) {
+    base = base.replace(/\/v2$/, '') + '/v3/config';
+  }
+  const headers = {
+    Authorization: `Bearer ${cfg.token}`,
+    Accept: 'application/json',
+    'User-Agent': 'CodeBuddyIDE/4.11.2 CodeBuddy/4.11.2',
+    'X-IDE-Type': 'CodeBuddyIDE',
+    'X-IDE-Name': 'CodeBuddyIDE',
+    'X-IDE-Version': '4.11.2',
+    'X-Product-Version': '4.11.2',
+    'X-Domain': 'www.codebuddy.cn',
+    'X-Product': 'SaaS'
+  };
+  const r = await getJson(base, headers);
+  if (!r.ok) return { ok: false, error: r.error, detail: r.body || null };
+  const payload = r.json || {};
+  if (payload.code !== 0) {
+    return { ok: false, error: `上游返回 code=${payload.code}：${payload.msg || ''}` };
+  }
+  const list = ((payload.data || {}).models || [])
+    .filter((m) => m && m.id)
+    .map((m) => ({
+      id: m.id,
+      name: m.name || m.id,
+      vendor: m.vendor || m.vendorCode || '',
+      reasoning: Boolean(m.supportsReasoning || m.reasoning || m.onlyReasoning),
+      image: m.supportsImages !== false && !m.disabledMultimodal,
+      tool: Boolean(m.supportsToolCall),
+      tags: Array.isArray(m.tags) ? m.tags : []
+    }));
+  const data = { ok: true, models: list, fetchedAt: new Date().toISOString() };
+  modelCache = { at: now, data };
+  return data;
+}
+
 function readPid() {
   try { return fs.readFileSync(path.join(DIR, 'modelbridge.pid'), 'utf8').trim(); } catch (_) { return null; }
 }
@@ -212,6 +307,12 @@ const server = http.createServer(async (req, res) => {
       const lines = Math.min(Math.max(Number(url.searchParams.get('lines')) || 200, 10), 1000);
       res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' });
       res.end(tail(LOG_FILE, lines));
+      return;
+    }
+
+    if (req.method === 'GET' && pathname === '/api/models') {
+      const result = await fetchModelList(url.searchParams.get('refresh') === '1');
+      json(res, result.ok ? 200 : 502, result);
       return;
     }
 

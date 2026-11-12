@@ -63,6 +63,16 @@
   .badge.ok { color: var(--accent); border-color: rgba(63,185,80,.4); }
   .badge.bad { color: var(--bad); border-color: rgba(248,81,73,.4); }
   .hint { color: var(--muted); font-size: 13px; margin: 6px 0 0; }
+  .models { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; margin-top: 10px; }
+  .model {
+    text-align: left; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px;
+    background: #0d1319; color: var(--text); cursor: pointer; font: inherit;
+  }
+  .model:hover { border-color: #3d4a57; }
+  .model.active { border-color: var(--link); box-shadow: 0 0 0 1px var(--link) inset; }
+  .model .id { color: var(--muted); font-size: 12px; word-break: break-all; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .model .meta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+  .tag { font-size: 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 0 6px; }
   #toast {
     position: fixed; right: 20px; bottom: 20px; padding: 10px 16px; border-radius: 8px;
     background: #1f2933; border: 1px solid var(--line); opacity: 0; transition: opacity .2s;
@@ -101,9 +111,14 @@
 
   <section class="card">
     <h2>网关配置</h2>
-    <p class="hint">保存后会写入 <code>/opt/youjingsenlin/modelbridge.conf</code> 并重启网关；改端口后请重新启动正在运行的 Agent。</p>
-    <label for="cfg-model">上游模型（会统一改写所有 Agent 的模型名）</label>
-    <input id="cfg-model" placeholder="deepseek-v4-flash" spellcheck="false">
+    <p class="hint">保存后会写入 <code>/opt/youjingsenlin/modelbridge.conf</code> 并重启网关；模型列表来自 CNB 上游，点选后记得保存生效。改端口后请重新启动正在运行的 Agent。</p>
+    <label for="cfg-model">上游模型（会统一改写所有 Agent 的模型名，可直接输入或点下面的模型）</label>
+    <input id="cfg-model" placeholder="deepseek-v4.1-flash" spellcheck="false">
+    <div class="row">
+      <button id="btn-models">刷新可用模型</button>
+      <span class="muted" id="models-status">正在读取…</span>
+    </div>
+    <div id="model-list" class="models"></div>
     <label for="cfg-port">监听端口（1024-65535）</label>
     <input id="cfg-port" type="number" min="1024" max="65535" placeholder="8787">
     <div class="row">
@@ -142,6 +157,7 @@
   const token = document.querySelector('meta[name="admin-token"]').content;
   const $ = (id) => document.getElementById(id);
   let state = null;
+  let modelList = [];
 
   function toast(msg, bad) {
     const el = $('toast');
@@ -165,7 +181,7 @@
   }
 
   function snippet(agent) {
-    const model = state && state.gateway ? state.gateway.model : 'deepseek-v4-flash';
+    const model = state && state.gateway ? state.gateway.model : 'deepseek-v4.1-flash';
     if (agent.mode === 'anthropic') {
       return [
         'ANTHROPIC_BASE_URL=' + base(),
@@ -208,6 +224,55 @@
     }
   }
 
+  function renderModels() {
+    const box = $('model-list');
+    if (!box) return;
+    box.textContent = '';
+    const current = $('cfg-model').value.trim();
+    for (const m of modelList) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'model' + (m.id === current ? ' active' : '');
+      const title = document.createElement('strong');
+      title.textContent = m.name || m.id;
+      const id = document.createElement('div');
+      id.className = 'id';
+      id.textContent = m.id;
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      const tags = [];
+      if (m.reasoning) tags.push('推理');
+      if (m.image) tags.push('图片');
+      if (m.tool) tags.push('工具');
+      for (const t of tags) {
+        const s = document.createElement('span');
+        s.className = 'tag';
+        s.textContent = t;
+        meta.appendChild(s);
+      }
+      btn.append(title, id, meta);
+      btn.addEventListener('click', () => {
+        $('cfg-model').value = m.id;
+        renderModels();
+      });
+      box.appendChild(btn);
+    }
+  }
+
+  async function loadModels(force) {
+    const st = $('models-status');
+    st.textContent = '正在读取…';
+    try {
+      const r = await api('/api/models' + (force ? '?refresh=1' : ''));
+      modelList = r.models || [];
+      st.textContent = '可用 ' + modelList.length + ' 个模型';
+    } catch (err) {
+      modelList = [];
+      st.textContent = '读取失败：' + err.message;
+    }
+    renderModels();
+  }
+
   function render() {
     if (!state) return;
     const gw = state.gateway;
@@ -245,6 +310,7 @@
     }
 
     $('log').textContent = state.log || '（暂无日志）';
+    renderModels();
   }
 
   async function refresh() {
@@ -266,6 +332,8 @@
   }
 
   $('btn-refresh').addEventListener('click', refresh);
+  $('btn-models').addEventListener('click', () => loadModels(true));
+  $('cfg-model').addEventListener('input', renderModels);
 
   $('btn-test').addEventListener('click', async () => {
     try {
@@ -326,6 +394,7 @@
   });
 
   refresh();
+  loadModels(false);
   setInterval(refresh, 15000);
 })();
 </script>

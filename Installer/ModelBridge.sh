@@ -8,7 +8,7 @@
 #   2. 桌面里预装的一堆 Agent 各用各的协议(Claude Messages / OpenAI Responses / Gemini)，
 #      默认还各自要求登录、各自用 claude-sonnet-4-5、gpt-5-codex 之类的模型名。
 #   ModelBridge 把同一个上游同时暴露成多种协议入口，并把模型名统一改成 CNB 认识的
-#   deepseek-v4-flash，于是 Agent 只要改 baseURL 就能免登录直接用 CNB 的模型。
+#   deepseek-v4.1-flash，于是 Agent 只要改 baseURL 就能免登录直接用 CNB 的模型。
 #
 # 本脚本幂等，可反复执行（桌面每次启动、cnb.yml 每个 stage 都会跑一遍）：
 #   1. 找 modelbridge 可执行文件；没有就按固定版本 release 下载并校验 sha256；
@@ -23,7 +23,7 @@
 #   MODELBRIDGE=0                  关闭网关：start 直接退出，不下载也不启动
 #   MODELBRIDGE_PORT               监听端口，默认 8787
 #   MODELBRIDGE_LISTEN             监听地址，默认 127.0.0.1（只给本机 Agent 用）
-#   MODELBRIDGE_MODEL              上游模型，默认 deepseek-v4-flash（CNB 侧即 DeepSeek-V4.1-Flash）
+#   MODELBRIDGE_MODEL              上游模型，默认 deepseek-v4.1-flash（CNB 侧即 DeepSeek-V4.1-Flash）
 #   MODELBRIDGE_VERSION            发行版本，默认 v1.30.3-senlin.1
 #   MODELBRIDGE_REPO_URL           发行仓库，默认 https://cnb.cool/magicsenlin/Lab/ModelBridge
 #   MODELBRIDGE_SHA256             可选：额外钉死二进制 sha256(未设置时只校验 release 自带 checksums.txt)
@@ -57,7 +57,7 @@ ENV_FILE="$INSTALL_DIR/modelbridge.env"
 PID_FILE="$INSTALL_DIR/modelbridge.pid"
 PORT="${MODELBRIDGE_PORT:-8787}"
 LISTEN="${MODELBRIDGE_LISTEN:-127.0.0.1}"
-MODEL="${MODELBRIDGE_MODEL:-deepseek-v4-flash}"
+MODEL="${MODELBRIDGE_MODEL:-deepseek-v4.1-flash}"
 VERSION="${MODELBRIDGE_VERSION:-v1.30.3-senlin.1}"
 REPO_URL="${MODELBRIDGE_REPO_URL:-https://cnb.cool/magicsenlin/Lab/ModelBridge}"
 BASE_URL="http://127.0.0.1:${PORT}"
