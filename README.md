@@ -27,7 +27,7 @@ IDE 升级到新版本（例如 2026.2）后桌面快捷方式不会失效：启
 ![JetBrains 快捷方式](./Img/20261030jetbrainsupdate.png)
 
 ### 新更新 AI Agent 服务 -> 桌面 Agent服务 文件夹
-桌面新增 `Agent服务` 文件夹，预置 ClaudeCode、CodeBuddy、DeepSeek、Codex、Gemini、Copilot、Qwen、Amp、Crush、OpenCode、Continue、iFlow、Cursor 等终端 Agent，以及 CodeBuddy IDE 与 WorkBuddy 桌面端，双击即可使用。  
+桌面新增 `Agent服务` 文件夹，预置 ClaudeCode、CodeBuddy、DeepSeek、Codex、Gemini、Copilot、Qwen、Amp、Crush、OpenCode、Continue、iFlow、Cursor 等终端 Agent，以及 CodeBuddy IDE 与 WorkBuddy 桌面端，双击即可使用；快捷方式已配套各自的品牌图标。  
 其中 DeepSeek 走 Web 界面：首次双击会在后台启动 `dsh web` 并自动打开浏览器页面，终端窗口可以直接关掉，服务不会跟着退出；服务已经在跑时再点一次只会重新打开页面，不会重复启动。  
 常用环境变量：`DSH_WEB_PORT`（默认 3080，被占用时自动往后找空闲端口）、日志 `~/.dsh-web.log`。  
 ![Agent服务](./Img/20261030agentservices.png)

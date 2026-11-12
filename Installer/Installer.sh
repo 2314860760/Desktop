@@ -201,6 +201,19 @@ else
   echo "[跳过] 未找到 ModelBridgeAdmin.*"
 fi
 
+#Agent 图标：统一装到 /opt/youjingsenlin/icons，快捷方式直接引用绝对路径，
+#不依赖各发行版图标主题里是否恰好有同名图标
+AGENT_ICON_DIR="$MODELBRIDGE_LAUNCHER_DIR/icons"
+if [ -n "$installer_dir" ] && [ -d "$installer_dir/icons" ]; then
+  install -d -m 0755 "$AGENT_ICON_DIR"
+  for f in "$installer_dir/icons/"*.svg "$installer_dir/icons/"*.png; do
+    [ -f "$f" ] || continue
+    install -m 0644 "$f" "$AGENT_ICON_DIR/"
+  done
+else
+  echo "[跳过] 未找到 icons 目录"
+fi
+
 #让桌面终端里的 Agent 默认指向网关。
 #网关就绪时 ModelBridge.sh 会写 /opt/youjingsenlin/modelbridge.env，这里只负责在 shell 里加载；
 #env 不存在时什么都不做，各 Agent 保持原有登录方式。
@@ -232,23 +245,23 @@ fi
 
 #Agent 命令清单: 显示名|命令|图标
 AGENT_CLIS=(
-  "ClaudeCode|claude|utilities-terminal"
-  "CodeBuddy|codebuddy|buddycn"
-  "DeepSeek|dsh|utilities-terminal"
-  "Codex|codex|utilities-terminal"
-  "Gemini|gemini|utilities-terminal"
-  "Copilot|copilot|utilities-terminal"
-  "Qwen|qwen|utilities-terminal"
-  "Amp|amp|utilities-terminal"
-  "Crush|crush|utilities-terminal"
-  "OpenCode|opencode|utilities-terminal"
-  "Continue|cn|utilities-terminal"
-  "iFlow|iflow|utilities-terminal"
-  "Cursor|cursor-agent|utilities-terminal"
+  "ClaudeCode|claude|claude.svg"
+  "CodeBuddy|codebuddy|codebuddy.svg"
+  "DeepSeek|dsh|deepseek.svg"
+  "Codex|codex|codex.svg"
+  "Gemini|gemini|gemini.svg"
+  "Copilot|copilot|copilot.svg"
+  "Qwen|qwen|qwen.svg"
+  "Amp|amp|amp.svg"
+  "Crush|crush|crush.png"
+  "OpenCode|opencode|opencode.svg"
+  "Continue|cn|continue.png"
+  "iFlow|iflow|iflow.png"
+  "Cursor|cursor-agent|cursor.svg"
 )
 
 make_agent_shortcuts() {
-  local home="$1" owner="$2" dir dirs entry name cmd icon exec_cmd
+  local home="$1" owner="$2" dir dirs entry name cmd icon icon_path exec_cmd
   dirs="$(agent_desktop_dirs "$home" | sort -u)"
   [ -n "$dirs" ] || dirs="$home/桌面"
   for dir in $dirs; do
@@ -257,15 +270,18 @@ make_agent_shortcuts() {
       IFS='|' read -r name cmd icon <<<"$entry"
       #命令不存在就跳过，避免留下点不开的快捷方式
       command -v "$cmd" >/dev/null 2>&1 || continue
+      #图标用随脚本安装的绝对路径；文件缺失时回退到终端图标，避免快捷方式显示空白
+      icon_path="$AGENT_ICON_DIR/$icon"
+      [ -f "$icon_path" ] || icon_path="utilities-terminal"
       #dsh 走包装脚本：后台起 `dsh web`，已启动时只打开页面
       if [ "$cmd" = dsh ] && [ -x "$DSH_LAUNCHER" ]; then
-        printf '%s\n' '[Desktop Entry]' 'Version=1.0' 'Type=Application' "Name=$name" "Comment=$name Web 服务(已在运行则直接打开页面)" "Icon=$icon" "Exec=$DSH_LAUNCHER" 'Terminal=true' 'Categories=Development;' > "$dir/Agent服务/$name.desktop"
+        printf '%s\n' '[Desktop Entry]' 'Version=1.0' 'Type=Application' "Name=$name" "Comment=$name Web 服务(已在运行则直接打开页面)" "Icon=$icon_path" "Exec=$DSH_LAUNCHER" 'Terminal=true' 'Categories=Development;' > "$dir/Agent服务/$name.desktop"
         continue
       fi
       #统一走 agent-env.sh：桌面快捷方式直接 exec，不会被登录 shell 加载 profile.d
       exec_cmd="$cmd"
       [ -x "$AGENT_ENV" ] && exec_cmd="$AGENT_ENV $cmd"
-      printf '%s\n' '[Desktop Entry]' 'Version=1.0' 'Type=Application' "Name=$name" "Comment=$name 终端" "Icon=$icon" "Exec=$exec_cmd" 'Terminal=true' 'Categories=Development;' > "$dir/Agent服务/$name.desktop"
+      printf '%s\n' '[Desktop Entry]' 'Version=1.0' 'Type=Application' "Name=$name" "Comment=$name 终端" "Icon=$icon_path" "Exec=$exec_cmd" 'Terminal=true' 'Categories=Development;' > "$dir/Agent服务/$name.desktop"
     done
     #模型网关状态入口：确认网关是否在跑、用的哪个模型、日志在哪（Agent 连不上时先看这里）
     if [ -x "$MODELBRIDGE_LAUNCHER" ]; then
